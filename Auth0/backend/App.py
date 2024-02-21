@@ -1,20 +1,19 @@
-# server/api.py
-from flask import Flask, request, redirect
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
-@app.route('/')
-def index():
-    return '¡La aplicación Flask está funcionando correctamente!'
-
-@app.route('/redirect', methods=['POST'])
-def redireccionar():
-    url_del_circuito = request.json.get('https://algassert.com/quirk#circuit={%22cols%22:[]}')
-    if url_del_circuito:
-        # Realizar el redireccionamiento
-        return redirect(url_del_circuito)
+@app.route('/recibir_url_quirk', methods=['POST'])
+def recibir_url_quirk():
+    if request.method == 'POST':
+        data = request.get_json()
+        url_quirk = data.get('urlQuirk')
+        # Aquí puedes manejar la URL recibida como desees
+        print("URL recibida desde Quirk:", url_quirk)
+        return jsonify({"message": "URL recibida exitosamente"}), 200
     else:
-        return 'URL del circuito no proporcionada', 400
+        return jsonify({"error": "Método no permitido"}), 405
 
 if __name__ == '__main__':
     app.run(debug=True)

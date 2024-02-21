@@ -4666,6 +4666,11 @@ find-up@^5.0.0:
     locate-path "^6.0.0"
     path-exists "^4.0.0"
 
+flask-cors@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.npmjs.org/flask-cors/-/flask-cors-0.0.1.tgz"
+  integrity sha512-ZEhUp1JH+Qxru2yOhsRhIgA18QR7D4S2wQtOqu28PvfeDFzz97Fu6M1fUXsjDwkEqSTuKdmJ34aCuYEr8dWthA==
+
 flat-cache@^3.0.4:
   version "3.0.4"
   resolved "https://registry.npmjs.org/flat-cache/-/flat-cache-3.0.4.tgz"
