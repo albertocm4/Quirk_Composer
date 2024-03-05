@@ -33,7 +33,7 @@ const ReceptorDatos = () => {
   }, [id]);
 
   if (!id) {
-    return <div>No se pudo obtener el ID</div>;
+    return <div>No se pudo obtener el ID correctamente</div>;
   }
 
   if (!link) {
