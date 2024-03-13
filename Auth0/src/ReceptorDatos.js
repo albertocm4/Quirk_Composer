@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react'; // Importar el hook useAuth0
 
 const ReceptorDatos = () => {
   const location = useLocation();
@@ -9,6 +10,7 @@ const ReceptorDatos = () => {
   const [awsCode, setAwsCode] = useState(null);
   const [ibmCode, setIbmCode] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0(); // Obtener el estado de autenticación
 
   const getParamsFromUrl = () => {
     const searchParams = new URLSearchParams(location.search);
@@ -49,30 +51,40 @@ const ReceptorDatos = () => {
   }, [location]);
 
   useEffect(() => {
-    if (id) {
+    if (isAuthenticated && id) {
+      // Solo intenta obtener el enlace de Django si el usuario está autenticado y se ha recibido una ID
       getLinkFromDjango();
     }
-  }, [id]);
+  }, [isAuthenticated, id]);
 
   useEffect(() => {
-    translateToPython();
-  }, [link]);
+    // Realizar la traducción solo si el enlace está disponible y el usuario está autenticado
+    if (link && isAuthenticated) {
+      translateToPython();
+    }
+  }, [link, isAuthenticated]);
 
   return (
     <div>
-      {loading ? (
-        <div>Traduciendo a Python...</div>
-      ) : (
-        <div>
+      {isLoading ? ( // Si está cargando la autenticación
+        <div>Cargando...</div>
+      ) : isAuthenticated ? ( // Si está autenticado
+        loading ? (
+          <div>Traduciendo a Python...</div>
+        ) : (
           <div>
-            <h2>Código AWS:</h2>
-            <pre>{awsCode}</pre>
+            <div>
+              <h2>Código AWS:</h2>
+              <pre>{awsCode}</pre>
+            </div>
+            <div>
+              <h2>Código IBM:</h2>
+              <pre>{ibmCode}</pre>
+            </div>
           </div>
-          <div>
-            <h2>Código IBM:</h2>
-            <pre>{ibmCode}</pre>
-          </div>
-        </div>
+        )
+      ) : ( // Si no está autenticado, redirigir al inicio de sesión
+        loginWithRedirect()
       )}
     </div>
   );
