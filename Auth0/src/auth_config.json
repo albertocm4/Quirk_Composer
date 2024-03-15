@@ -1,5 +1,5 @@
 {
   "domain": "dev-8rirlvbvk1vqqqdc.us.auth0.com",
   "clientId": "Vk1UnYPYk6g5trrdR9OezxZulgaXskWV",
-  "redirectUri": "http://localhost:3000"
+  "audience": "https://dev-8rirlvbvk1vqqqdc.us.auth0.com/api/v2/"
 }

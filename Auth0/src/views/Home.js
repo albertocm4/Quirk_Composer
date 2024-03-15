@@ -1,21 +1,14 @@
-import React, { useEffect } from "react";
+import React, { Fragment } from "react";
 
-const Home = ({ urlQuirk }) => {
-  useEffect(() => {
-    console.log("URL Redirected:", urlQuirk);
-  }, [urlQuirk]);
+import Hero from "../components/Hero";
+import Content from "../components/Content";
 
-  return (
-    <div>
-      <h1>Welcome to the Home Page!</h1>
-      {urlQuirk !== null && (
-        <div>
-          <h2>URL Redirected from Flask:</h2>
-          <p>{urlQuirk}</p>
-        </div>
-      )}
-    </div>
-  );
-};
+const Home = () => (
+  <Fragment>
+    <Hero />
+    <hr />
+    <Content />
+  </Fragment>
+);
 
 export default Home;
