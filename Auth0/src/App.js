@@ -1,6 +1,7 @@
-import React from "react";
+import React, { } from "react";
 import { Router, Route, Switch } from "react-router-dom";
 import { Container } from "reactstrap";
+import ReceptorDatos from './ReceptorDatos';
 
 import Loading from "./components/Loading";
 import NavBar from "./components/NavBar";
@@ -36,7 +37,8 @@ const App = () => {
         <Container className="flex-grow-1 mt-5">
           <Switch>
             <Route path="/" exact component={Home} />
-            <Route path="/receptor-datos" component={Profile} />
+            <Route path="/profile" component={Profile} />
+            <Route path="/receptor-datos" component={ReceptorDatos} />
             <Route path="/external-api" component={ExternalApi} />
           </Switch>
         </Container>
