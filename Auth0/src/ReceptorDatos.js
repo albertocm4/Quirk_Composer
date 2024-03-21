@@ -1,76 +1,125 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
-import { withAuthenticationRequired } from '@auth0/auth0-react';
+import { withAuthenticationRequired, useAuth0 } from '@auth0/auth0-react';
 import Loading from "./components/Loading";
+import MisCircuitos from './views/MisCircuitos';
+import { UserEmailProvider, useUserEmail } from './components/UserEmailContext'; // Importar el proveedor y el hook del contexto
 
 const ReceptorDatos = () => {
   const location = useLocation();
-  const [id, setId] = useState(null);
+  const { user } = useAuth0(); // Obtiene el usuario actual
+  const { setUserEmail } = useUserEmail(); // Obtener la función setUserEmail del contexto
+  const [cadena, setCadena] = useState(null);
   const [link, setLink] = useState(null);
   const [awsCode, setAwsCode] = useState(null);
   const [ibmCode, setIbmCode] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [id, setId] = useState(null);
+  const [csrfToken, setCsrfToken] = useState(null);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    const idFromUrl = searchParams.get('id');
-    setId(idFromUrl);
+    const cadena = searchParams.get('id');
+    setCadena(cadena);
   }, [location]);
 
   useEffect(() => {
-    if (id) {
+    if (cadena) {
       getLinkFromDjango();
     }
-  });
+  }, [cadena]);
 
   useEffect(() => {
     if (link) {
-      translateToPython();
+      translateToPython(id);
     }
-  });
+  }, [link]);
+
+  useEffect(() => {
+    fetchCsrfToken();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      setUserEmail(user.email); // Establecer el correo electrónico del usuario cuando esté disponible
+    }
+  }, [user]);
+
+  const fetchCsrfToken = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/get_csrf_token/');
+      setCsrfToken(response.data.csrfToken);
+    } catch (error) {
+      console.error('Error fetching CSRF token:', error);
+    }
+  };
 
   const getLinkFromDjango = async () => {
     try {
-      const response = await axios.get(`http://localhost:8000/links/${id}/`);
-      setLink(response.data.url);
+      const response = await axios.get(`http://localhost:8000/get_id_from_cadena/?cadena=${cadena}`);
+      const id = response.data.id;
+      setId(id);
+      const linkResponse = await axios.get(`http://localhost:8000/links/${id}/`);
+      setLink(linkResponse.data.url);
     } catch (error) {
       console.error('Error fetching link:', error);
     }
   };
-
-  const translateToPython = async () => {
-    if (!link) return;
-
+  
+  const translateToPython = async (id) => {
+    if (!link || !user.email || !csrfToken) return;
+  
     try {
-      const awsResponse = await axios.get('http://localhost:4246/code/aws', { headers: { 'x-url': link } });
-      setAwsCode(awsResponse.data.code.join('\n'));
+      const headers = {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken
+      };
 
-      const ibmResponse = await axios.get('http://localhost:4246/code/ibm', { headers: { 'x-url': link } });
+      const awsResponse = await axios.get('http://localhost:4246/code/aws', { 
+        headers: {'x-url': link} 
+      });
+      setAwsCode(awsResponse.data.code.join('\n'));
+  
+      const ibmResponse = await axios.get('http://localhost:4246/code/ibm', { 
+        headers: {'x-url': link} 
+      });
       setIbmCode(ibmResponse.data.code.join('\n'));
+  
+      await axios.post('http://localhost:8000/guardar_info/', {
+        email: user.email,
+        link_id: id,
+      }, {
+        headers: headers
+      });
     } catch (error) {
       console.error('Error translating to Python:', error);
     } finally {
       setLoading(false);
     }
   };
-
+  
   if (loading) {
     return <Loading />;
   }
 
   return (
-   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-     <div style={{ width: '45%' }}>
-       <h2>Código AWS:</h2>
-       <pre>{awsCode}</pre>
-     </div>
-     <div style={{ width: '45%' }}>
-       <h2>Código IBM:</h2>
-       <pre>{ibmCode}</pre>
-     </div>
-   </div>
- );
+    <UserEmailProvider> {/* Envolver el componente con el proveedor de contexto */}
+      <div>
+        <MisCircuitos /> {/* Eliminar el paso del correo electrónico como prop */}
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ width: '45%' }}>
+            <h2>Código AWS:</h2>
+            <pre>{awsCode}</pre>
+          </div>
+          <div style={{ width: '45%' }}>
+            <h2>Código IBM:</h2>
+            <pre>{ibmCode}</pre>
+          </div>
+        </div>
+      </div>
+    </UserEmailProvider>
+  );
 };
 
 export default withAuthenticationRequired(ReceptorDatos, {

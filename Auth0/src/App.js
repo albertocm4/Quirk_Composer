@@ -1,4 +1,5 @@
-import React, { } from "react";
+// App.js
+import React from "react";
 import { Router, Route, Switch } from "react-router-dom";
 import { Container } from "reactstrap";
 import ReceptorDatos from './ReceptorDatos';
@@ -9,8 +10,10 @@ import Footer from "./components/Footer";
 import Home from "./views/Home";
 import Profile from "./views/Profile";
 import ExternalApi from "./views/ExternalApi";
+import MisCircuitos from './views/MisCircuitos';
 import { useAuth0 } from "@auth0/auth0-react";
 import history from "./utils/history";
+import { UserEmailProvider } from './components/UserEmailContext';
 
 // styles
 import "./App.css";
@@ -31,20 +34,23 @@ const App = () => {
   }
 
   return (
-    <Router history={history}>
-      <div id="app" className="d-flex flex-column h-100">
-        <NavBar />
-        <Container className="flex-grow-1 mt-5">
-          <Switch>
-            <Route path="/" exact component={Home} />
-            <Route path="/profile" component={Profile} />
-            <Route path="/receptor-datos" component={ReceptorDatos} />
-            <Route path="/external-api" component={ExternalApi} />
-          </Switch>
-        </Container>
-        <Footer />
-      </div>
-    </Router>
+    <UserEmailProvider> {/* Aquí envuelves todo el componente App con el proveedor de contexto */}
+      <Router history={history}>
+        <div id="app" className="d-flex flex-column h-100">
+          <NavBar />
+          <Container className="flex-grow-1 mt-5">
+            <Switch>
+              <Route path="/" exact component={Home} />
+              <Route path="/mis-circuitos" component={MisCircuitos} /> {/* Esta es la ruta para MisCircuitos */}
+              <Route path="/profile" component={Profile} />
+              <Route path="/receptor-datos" component={ReceptorDatos} />
+              <Route path="/external-api" component={ExternalApi} />
+            </Switch>
+          </Container>
+          <Footer />
+        </div>
+      </Router>
+    </UserEmailProvider>
   );
 };
 

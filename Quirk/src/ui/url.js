@@ -117,12 +117,12 @@ function enviarURLADjango(urlQuirk) {
                 // Obtener la respuesta de Django
                 var response = JSON.parse(xhr.responseText);
                 // Verificar si se recibió la URL
-                if (response.url && response.id) {
+                if (response.url && response.cadena) {
                     console.log("URL con ID:", response.url);
-                    // Enviar el ID y la URL a la aplicación de React
-                    enviarIDAReact(response.id);
+                    // Enviar la cadena a la aplicación de React
+                    enviarIDAReact(response.cadena);
                 } else {
-                    console.error("Error: No se recibió la URL o el ID esperado desde Django");
+                    console.error("Error: No se recibió la URL o la cadena esperada desde Django");
                 }
             } else {
                 console.error("Error al enviar la URL a Django. Código de estado:", xhr.status);
@@ -136,10 +136,12 @@ function enviarURLADjango(urlQuirk) {
     xhr.send(data);
 }
 
-function enviarIDAReact(id) {
-    // Redirigir a la aplicación de React con el ID
-    window.location.href = `http://localhost:3000/receptor-datos?id=${id}`;
+function enviarIDAReact(cadena) {
+    // Redirigir a la aplicación de React con la cadena concatenada
+    window.location.href = `http://localhost:3000/receptor-datos?id=${cadena}`;
 }
+
+
 
 
 export {initUrlCircuitSync}
