@@ -3,7 +3,6 @@ import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import { withAuthenticationRequired, useAuth0 } from '@auth0/auth0-react';
 import Loading from "./components/Loading";
-import MisCircuitos from './views/MisCircuitos';
 import { UserEmailProvider, useUserEmail } from './components/UserEmailContext'; // Importar el proveedor y el hook del contexto
 
 const ReceptorDatos = () => {
@@ -32,7 +31,7 @@ const ReceptorDatos = () => {
 
   useEffect(() => {
     if (link) {
-      translateToPython(id);
+      translateToPython(id, link); // Llama a la función translateToPython pasando la URL del circuito
     }
   }, [link]);
 
@@ -67,8 +66,8 @@ const ReceptorDatos = () => {
     }
   };
   
-  const translateToPython = async (id) => {
-    if (!link || !user.email || !csrfToken) return;
+  const translateToPython = async (id, url) => {
+    if (!url || !user.email || !csrfToken) return;
   
     try {
       const headers = {
@@ -77,12 +76,12 @@ const ReceptorDatos = () => {
       };
 
       const awsResponse = await axios.get('http://localhost:4246/code/aws', { 
-        headers: {'x-url': link} 
+        headers: {'x-url': url} 
       });
       setAwsCode(awsResponse.data.code.join('\n'));
   
       const ibmResponse = await axios.get('http://localhost:4246/code/ibm', { 
-        headers: {'x-url': link} 
+        headers: {'x-url': url} 
       });
       setIbmCode(ibmResponse.data.code.join('\n'));
   
@@ -106,7 +105,6 @@ const ReceptorDatos = () => {
   return (
     <UserEmailProvider> {/* Envolver el componente con el proveedor de contexto */}
       <div>
-        <MisCircuitos /> {/* Eliminar el paso del correo electrónico como prop */}
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <div style={{ width: '45%' }}>
             <h2>Código AWS:</h2>
