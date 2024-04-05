@@ -53,6 +53,27 @@ const MisCircuitos = () => {
     }
   };
 
+  const ejecutarTraduccion = async (codigoTraducido) => {
+    try {
+      console.log("Código traducido a enviar:", codigoTraducido); // Agrega esta línea para imprimir el código traducido
+      const response = await axios.post('http://localhost:8000/ejecutar_circuito/', {
+        codigo_traducido: codigoTraducido
+      });
+      console.log(response.data);
+      // Aquí puedes manejar la respuesta del backend después de ejecutar la traducción
+    } catch (error) {
+      console.error('Error al ejecutar traducción:', error);
+    }
+  };
+  
+  const handleEjecutarAwsClick = () => {
+    ejecutarTraduccion(awsCode);
+  };
+  
+  const handleEjecutarIbmClick = () => {
+    ejecutarTraduccion(ibmCode);
+  };
+
   const handleBack = () => {
     setTranslatedCircuito(null);
   };
@@ -108,6 +129,9 @@ const MisCircuitos = () => {
           <h4>Código IBM:</h4>
           <pre>{ibmCode}</pre>
           <button onClick={handleBack}>Volver</button>
+          {/* Agrega botones para ejecutar traducción */}
+          <button onClick={handleEjecutarAwsClick}>Ejecutar AWS</button>
+          <button onClick={handleEjecutarIbmClick}>Ejecutar IBM</button>
         </div>
       ) : (
         <ul>
