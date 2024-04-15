@@ -89,10 +89,12 @@ function initUrlCircuitSync(revision) {
 
 
 
-// Función para obtener la URL actual del documento
 function obtenerURL() {
     return window.location.href;
 }
+
+
+
 
 // Escuchar el evento 'message' para recibir el mensaje del documento principal
 window.addEventListener('message', function(event) {

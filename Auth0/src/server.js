@@ -16,6 +16,7 @@ app.get('/code/aws', async (req, res) => {
   try {
     const { 'x-url': url } = req.headers; // Extraer la URL del header 'x-url' de la solicitud
     // Hacer la solicitud al servidor remoto con la URL
+    console.log("URL recibida en /code/aws:", url); // Registrar la URL recibida para verificar
     const response = await axios.get('http://quantumservicesdeployment.spilab.es:8081/code/aws', { headers: { 'x-url': url } });
     res.json(response.data); // Devolver la respuesta del servidor remoto al cliente
   } catch (error) {

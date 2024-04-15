@@ -77,6 +77,16 @@ const NavBar = () => {
                   Mis Circuitos
                 </NavLink>
               </NavItem>
+              <NavItem>
+              <NavLink
+                tag={RouterNavLink}
+                to="/resultados"  // Aquí se especifica la ruta para la página de Resultados
+                exact
+                activeClassName="router-link-exact-active"
+              >
+                Resultados  
+              </NavLink>
+            </NavItem>
             </Nav>
             <Nav className="d-none d-md-block" navbar>
               {!isAuthenticated && (

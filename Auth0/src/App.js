@@ -11,6 +11,7 @@ import Home from "./views/Home";
 import Profile from "./views/Profile";
 import ExternalApi from "./views/ExternalApi";
 import MisCircuitos from './views/MisCircuitos';
+import Resultados from './views/Resultados'; 
 import { useAuth0 } from "@auth0/auth0-react";
 import history from "./utils/history";
 import { UserEmailProvider } from './components/UserEmailContext';
@@ -42,6 +43,7 @@ const App = () => {
             <Switch>
               <Route path="/" exact component={Home} />
               <Route path="/mis-circuitos" component={MisCircuitos} /> {/* Esta es la ruta para MisCircuitos */}
+              <Route path="/resultados" component={Resultados} /> {/* Esta es la ruta para Resultados */}
               <Route path="/profile" component={Profile} />
               <Route path="/receptor-datos" component={ReceptorDatos} />
               <Route path="/external-api" component={ExternalApi} />
