@@ -90,7 +90,19 @@ function initUrlCircuitSync(revision) {
 
 
 function obtenerURL() {
-    return window.location.href;
+    let url = window.location.href;
+    console.log("URL original:", url);
+    url = decodeURIComponent(url);
+    console.log("URL decodificada:", url);
+    // url = url.replace(/"/g, '\\"'); // Reemplaza comillas dobles con \"
+    // console.log("URL con comillas dobles:", url);
+    
+    // setTimeout(function() {
+    //     console.log("Pasaron 10 segundos");
+    //     // Aquí puedes agregar cualquier código que quieras ejecutar después de 10 segundos
+    // }, 10000);
+    
+    return url;
 }
 
 

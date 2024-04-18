@@ -7,31 +7,45 @@ const PORT = 4246; // El puerto en el que se ejecutará el servidor intermedio
 // Middleware para permitir solicitudes CORS
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, x-url'); // Agrega 'x-url' al conjunto de encabezados permitidos
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, data, x-url'); // Agrega 'x-url' al conjunto de encabezados permitidos
   next();
 });
 
-// Ruta para manejar la solicitud GET y reenviarla al servidor remoto
-app.get('/code/aws', async (req, res) => {
+// Middleware para parsear el cuerpo de la solicitud como JSON
+app.use(express.json());
+
+// Ruta para manejar la solicitud POST y reenviarla al servidor remoto
+app.post('/code/aws', async (req, res) => {
   try {
-    const { 'x-url': url } = req.headers; // Extraer la URL del header 'x-url' de la solicitud
+    // console.log(req.body); // Verifica que se esté recibiendo el cuerpo de la solicitud correctamente
+    const { url } = req.body; // Extraer la URL directamente del cuerpo de la solicitud
+    //console.log("URL recibida en /code/aws:", url, "FINNNNNNNNNNN"); // Verifica la URL recibida
+
     // Hacer la solicitud al servidor remoto con la URL
-    console.log("URL recibida en /code/aws:", url); // Registrar la URL recibida para verificar
-    const response = await axios.get('http://quantumservicesdeployment.spilab.es:8081/code/aws', { headers: { 'x-url': url } });
-    res.json(response.data); // Devolver la respuesta del servidor remoto al cliente
+    const response = await axios.post('http://quantumservicesdeployment.spilab.es:8083/code/aws', { url: url  });
+    // Devolver la respuesta del servidor remoto al cliente
+    res.json(response.data);
   } catch (error) {
     console.error('Error:', error.message);
     res.status(500).json({ error: 'Error en el servidor intermedio' });
   }
 });
 
+
+
+
 // Ruta para manejar la solicitud GET y reenviarla al servidor remoto
-app.get('/code/ibm', async (req, res) => {
+app.post('/code/ibm', async (req, res) => {
   try {
-    const { 'x-url': url } = req.headers; // Extraer la URL del header 'x-url' de la solicitud
+    // console.log(req.body); // Verifica que se esté recibiendo el cuerpo de la solicitud correctamente
+    const { url } = req.body; // Extraer la URL directamente del cuerpo de la solicitud
+    console.log("URL recibida en /code/ibm:", url); // Verifica la URL recibida
+
     // Hacer la solicitud al servidor remoto con la URL
-    const response = await axios.get('http://quantumservicesdeployment.spilab.es:8081/code/ibm', { headers: { 'x-url': url } });
-    res.json(response.data); // Devolver la respuesta del servidor remoto al cliente
+    const response = await axios.post('http://quantumservicesdeployment.spilab.es:8083/code/ibm', { url: url  });
+    console.log(response.data); // Verifica la respuesta del servidor remoto
+    // Devolver la respuesta del servidor remoto al cliente
+    res.json(response.data);
   } catch (error) {
     console.error('Error:', error.message);
     res.status(500).json({ error: 'Error en el servidor intermedio' });

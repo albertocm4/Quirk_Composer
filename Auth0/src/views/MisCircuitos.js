@@ -37,15 +37,33 @@ const MisCircuitos = () => {
   const handleTranslate = async (url, nombre) => {
     try {
       setIsTranslating(true);
-
-      const awsResponse = await axios.get('http://localhost:4246/code/aws', { 
-        headers: {'x-url': url} 
-      });
+      console.log('URL a traducir:', url);
+  
+      // Enviar la solicitud al servidor intermedio con la URL como un objeto JSON
+      const awsResponse = await axios.post('http://localhost:4246/code/aws', 
+        { 
+          url: url 
+        }, // La URL como un objeto JSON
+        {
+          headers: {
+            'Content-Type': 'application/json' // Especificar que el contenido es JSON
+          }
+        }
+      );
+  
+      // Procesar la respuesta del servidor intermedio
       setAwsCode(awsResponse.data.code.join('\n'));
 
-      const ibmResponse = await axios.get('http://localhost:4246/code/ibm', { 
-        headers: {'x-url': url} 
-      });
+      const ibmResponse = await axios.post('http://localhost:4246/code/ibm', 
+        { 
+          url: url 
+        }, // La URL como un objeto JSON
+        {
+          headers: {
+            'Content-Type': 'application/json' // Especificar que el contenido es JSON
+          }
+        }
+      );
       setIbmCode(ibmResponse.data.code.join('\n'));
 
       setTranslatedCircuito({ url, nombre });
@@ -109,6 +127,18 @@ const MisCircuitos = () => {
     }
   };
 
+  const handleDeleteClick = async (id) => {
+    try {
+      const response = await axios.delete(`http://localhost:8000/circuitos/borrar_circuito/${id}/`);
+      console.log(response.data);
+      // Actualizar la lista de circuitos después de eliminar el circuito
+      const updatedCircuitos = circuitos.filter(circuito => circuito.id !== id);
+      setCircuitos(updatedCircuitos);
+    } catch (error) {
+      console.error('Error al borrar el circuito:', error);
+    }
+  };
+
   const handleEditClick = (circuito) => {
     setEditingCircuito(circuito);
     setEditedNombre(circuito.nombre || '');
@@ -126,18 +156,18 @@ const MisCircuitos = () => {
           <h3>Traducción de circuito:</h3>
           <h4>Código AWS:</h4>
           <pre>{awsCode}</pre>
+          <button onClick={handleEjecutarAwsClick}>Ejecutar AWS</button>
           <h4>Código IBM:</h4>
           <pre>{ibmCode}</pre>
-          <button onClick={handleBack}>Volver</button>
-          <button onClick={handleEjecutarAwsClick}>Ejecutar AWS</button>
-          <button onClick={handleEjecutarIbmClick}>Ejecutar IBM</button>
+          <span><button onClick={handleEjecutarIbmClick}>Ejecutar IBM</button></span>
+          <p><button onClick={handleBack}>Volver</button></p>
+          
         </div>
       ) : (
         <ul>
           {circuitos.map((circuito, index) => (
             <li key={index}>           
               <div>
-                <button onClick={() => window.open(circuito.url, '_blank')}>Ir al circuito</button>
                 {editingCircuito === circuito ? (
                   <>
                     <input
@@ -149,11 +179,14 @@ const MisCircuitos = () => {
                   </>
                 ) : (
                   <>
-                    <span>{circuito.nombre ? circuito.nombre : `Circuito ${circuito.id}`}</span>
-                    <button onClick={() => handleEditClick(circuito)}>Editar</button>
+                    <span>{circuito.nombre ? circuito.nombre : `Circuito ${circuito.id}`} </span>
+                    <button onClick={() => handleEditClick(circuito)}>Cambiar nombre</button>
                   </>
                 )}
+                <span> <button onClick={() => window.open(circuito.url, '_blank')}>Ir al circuito</button> </span>
                 <button disabled={isTranslating} onClick={() => {setSelectedCircuitoId(circuito.id); handleTranslate(circuito.url, circuito.nombre)}}>Ver código</button>
+                <button onClick={() => handleDeleteClick(circuito.id)}>Borrar</button>
+                
               </div>
             </li>
           ))}

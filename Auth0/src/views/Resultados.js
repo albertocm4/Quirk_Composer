@@ -128,24 +128,24 @@ const Resultados = () => {
 
   return (
     <div>
-      <h2>Resultados del Circuito:</h2>
+      <h2>Resultados de circuitos:</h2>
       {selectedCodigo && (
         <div>
-          <h3>Gráfico del Código {selectedCodigo}:</h3>
+          <h3>Gráfico del código {selectedCodigo}:</h3>
           <canvas id="myChart" style={{ width: '250px !important', height: '250px !important' }}></canvas>
-          <button onClick={() => handleBorrarCodigo(selectedCodigo)}>Borrar Código</button>
+          <button onClick={() => handleBorrarCodigo(selectedCodigo)}>Borrar código</button>
           <button onClick={() => setSelectedCodigo(null)}>Volver</button>
         </div>
       )}
       {!selectedCodigo && selectedCircuito && (
   <div>
-    <h3>Detalles del Circuito:</h3>
+    <h3>Detalles del circuito:</h3>
     <h4>Códigos de tipo AWS:</h4>
     <ul>
       {selectedCircuito.resultados.filter(resultado => resultado.tipo_circuito === 'AWS').map((resultado, index) => (
         <li key={index}>
           <p>Código: {resultado.codigo}</p>
-          <button onClick={() => handleVerGrafico(resultado.codigo)}>Ver Gráfico</button>
+          <button onClick={() => handleVerGrafico(resultado.codigo)}>Ver gráfico</button>
         </li>
       ))}
     </ul>
@@ -154,7 +154,7 @@ const Resultados = () => {
       {selectedCircuito.resultados.filter(resultado => resultado.tipo_circuito === 'IBM').map((resultado, index) => (
         <li key={index}>
           <p>Código: {resultado.codigo}</p>
-          <button onClick={() => handleVerGrafico(resultado.codigo)}>Ver Gráfico</button>
+          <button onClick={() => handleVerGrafico(resultado.codigo)}>Ver gráfico</button>
         </li>
       ))}
     </ul>
@@ -166,8 +166,8 @@ const Resultados = () => {
         <ul>
           {circuitos.map((circuito, index) => (
             <li key={index}>
-              <span>Nombre: {circuito.nombre}</span>
-              <button onClick={() => handleVerDetalles(circuito)}>Ver Detalles</button>
+              <span>Nombre: {circuito.nombre} </span>
+              <button onClick={() => handleVerDetalles(circuito)}>Ver resultados</button>
             </li>
           ))}
         </ul>

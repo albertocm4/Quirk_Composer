@@ -75,22 +75,40 @@ const ReceptorDatos = () => {
         'X-CSRFToken': csrfToken
       };
 
-      const awsResponse = await axios.get('http://localhost:4246/code/aws', { 
-        headers: {'x-url': url} 
-      });
-      setAwsCode(awsResponse.data.code.join('\n'));
-  
-      const ibmResponse = await axios.get('http://localhost:4246/code/ibm', { 
-        headers: {'x-url': url} 
-      });
-      setIbmCode(ibmResponse.data.code.join('\n'));
-  
       await axios.post('http://localhost:8000/guardar_info/', {
         email: user.email,
         link_id: id,
       }, {
         headers: headers
       });
+
+      const awsResponse = await axios.post('http://localhost:4246/code/aws', 
+        { 
+          url: url 
+        }, // La URL como un objeto JSON
+        {
+          headers: {
+            'Content-Type': 'application/json' // Especificar que el contenido es JSON
+          }
+        }
+      );
+  
+      // Procesar la respuesta del servidor intermedio
+      setAwsCode(awsResponse.data.code.join('\n'));
+  
+      const ibmResponse = await axios.post('http://localhost:4246/code/ibm', 
+        { 
+          url: url 
+        }, // La URL como un objeto JSON
+        {
+          headers: {
+            'Content-Type': 'application/json' // Especificar que el contenido es JSON
+          }
+        }
+      );
+      setIbmCode(ibmResponse.data.code.join('\n'));
+  
+
     } catch (error) {
       console.error('Error translating to Python:', error);
     } finally {
