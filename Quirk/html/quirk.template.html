@@ -19,9 +19,105 @@
                 <button id="menu-button" style="min-width: 50px; min-height: 30px;">Menu</button>
                 &nbsp;
                 &nbsp;
-                <button id="enviar-url" style="min-width: 50px; min-height: 30px;">Go to Advance Quirk</button>
-                &nbsp;
-                &nbsp;
+                                <!-- Botón para ir a Quirk Advance o editar circuito -->
+                <button id="enviar-url" style="min-width: 50px; min-height: 30px;"></button>
+
+<!-- Script para cambiar el texto del botón dependiendo de si la URL contiene "&cadena=" -->
+<script>
+    // Variables globales para almacenar la URL antes de la cadena y la cadena del circuito
+    window.urlAntesDeCadena;
+    window.cadenaCircuito;
+
+    // Función para verificar si la URL contiene la palabra "cadena" en el fragmento
+    function urlContieneCadena() {
+        return window.location.href.includes("&cadena=");
+    }
+
+    // Función para obtener el valor del parámetro "cadena" del fragmento de la URL
+    function obtenerValorParametroCadena() {
+        const hashIndex = window.location.href.indexOf("&cadena=");
+        if (hashIndex !== -1) {
+            const hash = window.location.href.slice(hashIndex + 1);
+            const urlParams = new URLSearchParams(hash);
+            return urlParams.get("cadena");
+        }
+        return cadenaCircuito;
+    }
+
+    // Función para obtener todo lo que está antes de "&cadena=" en la URL
+    function obtenerURLAntesDeCadena() {
+        const urlCompleta = window.location.href;
+        const cadenaBuscada = "&cadena=";
+        const index = urlCompleta.indexOf(cadenaBuscada);
+        if (index !== -1) {
+            return urlAntesDeCadena = urlCompleta.substring(0, index);
+        }
+        return urlAntesDeCadena;
+    }
+
+
+    // Función para obtener la URL antes de la cadena y la cadena del circuito
+    function obtenerURLYCadena() {
+        // Obtener la URL completa
+        const urlCompleta = window.location.href;
+
+    // Establecer la URL antes de la cadena como la URL completa predeterminada
+    urlAntesDeCadena = urlCompleta;
+
+        // Obtener la cadena del circuito
+        const hashIndex = urlCompleta.indexOf("&cadena=");
+        if (hashIndex !== -1) {
+            const hash = urlCompleta.slice(0, hashIndex); // Extraer la parte de la URL antes de "&cadena="
+            const urlParams = new URLSearchParams(hash);
+            cadenaCircuito = urlParams.get("cadena");
+            console.log("HASHHHH", hash);
+        }
+
+        // Almacenar la URL antes de la cadena
+        return urlAntesDeCadena = hashIndex !== -1 ? urlCompleta.slice(0, hashIndex) : urlCompleta;
+
+    }
+
+    // Seleccionar el botón por su id
+    const enviarUrlButton = document.getElementById("enviar-url");
+
+    // Agregar un event listener para el evento click
+    enviarUrlButton.addEventListener("click", function() {
+        // Verificar si el texto del botón es "Go to Quirk Advance"
+        if (enviarUrlButton.innerText === "Go to Advance Quirk") {
+            // Si lo es, enviar el mensaje postMessage
+            obtenerURLYCadena(); // Obtener la URL antes de la cadena y la cadena del circuito
+            window.parent.postMessage({ type: 'get url' }, '*');
+        } else if (enviarUrlButton.innerText === "Editar Circuito") {
+            // Si el texto del botón es "Editar Circuito", enviar otro mensaje postMessage
+            cadenaCircuito = obtenerValorParametroCadena();
+            console.log("Cadena del circuito:", cadenaCircuito);
+            urlAntesDeCadena = obtenerURLAntesDeCadena();
+            console.log("URL antes de la cadena:", urlAntesDeCadena);
+            window.parent.postMessage({ type: 'edit circuit' }, '*');
+            console.log("La url es:" , urlAntesDeCadena);
+            console.log("La cadena es:",cadenaCircuito);
+            console.log("Editar Circuito");
+        }
+    });
+
+    // Cambiar el texto del botón dependiendo de si la URL contiene "&cadena="
+    if (urlContieneCadena()) {
+        enviarUrlButton.textContent = "Editar Circuito";
+        // Si la URL contiene "&cadena=", obtén y utiliza el valor de la cadena
+        cadenaCircuito = obtenerValorParametroCadena();
+        console.log("Cadena del circuito:", cadenaCircuito);
+        urlAntesDeCadena = obtenerURLAntesDeCadena();
+        console.log("URL antes de la cadena:", urlAntesDeCadena);
+        // Aquí puedes hacer lo que necesites con la cadena del circuito
+    } else {
+        enviarUrlButton.textContent = "Go to Advance Quirk";
+    }
+</script>
+
+
+
+
                 <button id="export-button" style="min-width: 50px; min-height: 30px;">Export</button>
                 &nbsp;
                 &nbsp;
@@ -105,12 +201,21 @@
           document.getElementById('noscript-div').style.display = 'none';
         </script>
 
-<script>
-    document.getElementById("enviar-url").addEventListener("click", function() {
-        // Emitir un evento para obtener la URL actual y luego enviarla
-        window.parent.postMessage({ type: 'get url' }, '*');
+<!-- <script>
+    // Seleccionar el botón por su id
+    const enviarUrlButton = document.getElementById("enviar-url");
+
+    // Agregar un event listener para el evento click
+    enviarUrlButton.addEventListener("click", function() {
+        // Verificar si el texto del botón es "Go to Quirk Advance"
+        if (enviarUrlButton.innerText === "Go to Advance Quirk") {
+            // Si lo es, enviar el mensaje postMessage
+            window.parent.postMessage({ type: 'get url' }, '*');
+        } else {
+            // Si no, hacer otra cosa o dejar vacío
+        }
     });
-</script>
+</script> -->
 
         <script>
           document.getElementById('noscript-div').style.display = 'block'; 

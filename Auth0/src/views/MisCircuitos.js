@@ -17,6 +17,10 @@ const MisCircuitos = () => {
   const [editedNombre, setEditedNombre] = useState('');
   const [selectedCircuitoId, setSelectedCircuitoId] = useState(null);
   const history = useHistory();
+  const [selectedShotsIBM, setSelectedShotsIBM] = useState('');
+  const [selectedShotsAWS, setSelectedShotsAWS] = useState('');
+  const [selectedMaquinaIBM, setSelectedMaquinaIBM] = useState('');
+  const [selectedMaquinaAWS, setSelectedMaquinaAWS] = useState('');
 
   useEffect(() => {
     const fetchCircuitos = async () => {
@@ -74,15 +78,33 @@ const MisCircuitos = () => {
     }
   };
 
-  const ejecutarTraduccion = async (codigoTraducido, plataforma) => {
+  const ejecutarTraduccion = async (codigoTraducido, plataforma, shots, maquina) => {
     try {
+          // Verificar si se ha seleccionado una máquina válida
+    if (maquina === '') {
+      alert('Por favor, selecciona una máquina válida.');
+      return;
+    }
+    
+    // Verificar si se ha ingresado un número de shots válido
+    if (shots === '') {
+      alert('Por favor, ingresa un número de shots.');
+      return;
+    } else if (parseInt(shots) < 100 || parseInt(shots) > 10000) {
+      alert('El número de shots debe estar entre 100 y 10000.');
+      return;
+    }
       console.log("Código traducido a enviar:", codigoTraducido);
       console.log("ID del circuito seleccionado:", selectedCircuitoId);
       console.log("Plataforma seleccionada:", plataforma);
+      console.log("Número de shots:", shots);
+      console.log("Máquina seleccionada:", maquina);
       const response = await axios.post('http://localhost:8000/ejecutar_circuito/', {
         codigo_traducido: codigoTraducido,
         circuito_id: selectedCircuitoId, // Utilizamos el ID almacenado en el estado
-        plataforma: plataforma
+        plataforma: plataforma,
+        shots: shots,
+        maquina: maquina
       });
       console.log(response.data);
     } catch (error) {
@@ -91,11 +113,11 @@ const MisCircuitos = () => {
   };
   
   const handleEjecutarAwsClick = () => {
-    ejecutarTraduccion(awsCode, "AWS");
+    ejecutarTraduccion(awsCode, "AWS", selectedShotsAWS, selectedMaquinaAWS);
   };
   
   const handleEjecutarIbmClick = () => {
-    ejecutarTraduccion(ibmCode, "IBM");
+    ejecutarTraduccion(ibmCode, "IBM", selectedShotsIBM, selectedMaquinaIBM);
   };
 
   const handleBack = () => {
@@ -148,22 +170,40 @@ const MisCircuitos = () => {
     setEditedNombre(event.target.value);
   };
 
+  const handleEditCode = (circuito) => {
+    const urlQuirk = `${circuito.url}&cadena=${circuito.cadena}`;
+    window.location.href = urlQuirk;
+  };
+  
+  
+
   return (
     <div>
       <h2>Circuitos de {userEmail}:</h2>
       {translatedCircuito ? (
-        <div>
-          <h3>Traducción de circuito:</h3>
-          <h4>Código AWS:</h4>
-          <pre>{awsCode}</pre>
-          <button onClick={handleEjecutarAwsClick}>Ejecutar AWS</button>
-          <h4>Código IBM:</h4>
-          <pre>{ibmCode}</pre>
-          <span><button onClick={handleEjecutarIbmClick}>Ejecutar IBM</button></span>
-          <p><button onClick={handleBack}>Volver</button></p>
-          
-        </div>
-      ) : (
+      <div>
+        <h3>Traducción de circuito:</h3>
+        <h4>Código AWS:</h4>
+        <pre>{awsCode}</pre>
+        <label htmlFor="selectMaquinaAWS">Seleccionar máquina: </label>
+        <select id="selectMaquinaAWS" value={selectedMaquinaAWS} onChange={(e) => setSelectedMaquinaAWS(e.target.value)}>
+          <option value="">Seleccione una</option>
+          <option value="local">local</option>
+        </select>
+        <input type="number" value={selectedShotsAWS} onChange={(e) => setSelectedShotsAWS(e.target.value)} placeholder="Número de Shots" />
+        <button onClick={handleEjecutarAwsClick}>Ejecutar AWS</button>
+        <h4>Código IBM:</h4>
+        <pre>{ibmCode}</pre>
+        <label htmlFor="selectMaquinaIBM">Seleccionar máquina: </label>
+        <select id="selectMaquinaIBM" value={selectedMaquinaIBM} onChange={(e) => setSelectedMaquinaIBM(e.target.value)}>
+          <option value="">Seleccione una</option>
+          <option value="local">local</option>
+        </select>
+        <input type="number" value={selectedShotsIBM} onChange={(e) => setSelectedShotsIBM(e.target.value)} placeholder="Número de Shots" />
+        <span><button onClick={handleEjecutarIbmClick}>Ejecutar IBM</button></span>
+        <p><button onClick={handleBack}>Volver</button></p>
+      </div>
+   ) : (
         <ul>
           {circuitos.map((circuito, index) => (
             <li key={index}>           
@@ -185,6 +225,7 @@ const MisCircuitos = () => {
                 )}
                 <span> <button onClick={() => window.open(circuito.url, '_blank')}>Ir al circuito</button> </span>
                 <button disabled={isTranslating} onClick={() => {setSelectedCircuitoId(circuito.id); handleTranslate(circuito.url, circuito.nombre)}}>Ver código</button>
+                <button onClick={() => handleEditCode(circuito)}>Editar código</button>
                 <button onClick={() => handleDeleteClick(circuito.id)}>Borrar</button>
                 
               </div>

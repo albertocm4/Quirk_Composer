@@ -92,20 +92,17 @@ function initUrlCircuitSync(revision) {
 function obtenerURL() {
     let url = window.location.href;
     console.log("URL original:", url);
+    // Obtener la posición de "&cadena="
+    const index = url.indexOf("&cadena=");
+    if (index !== -1) {
+        // Si se encuentra "&cadena=", eliminar todo desde ese punto en adelante
+        url = url.substring(0, index);
+    }
     url = decodeURIComponent(url);
     console.log("URL decodificada:", url);
-    // url = url.replace(/"/g, '\\"'); // Reemplaza comillas dobles con \"
-    // console.log("URL con comillas dobles:", url);
-    
-    // setTimeout(function() {
-    //     console.log("Pasaron 10 segundos");
-    //     // Aquí puedes agregar cualquier código que quieras ejecutar después de 10 segundos
-    // }, 10000);
-    
+
     return url;
 }
-
-
 
 
 // Escuchar el evento 'message' para recibir el mensaje del documento principal
@@ -118,7 +115,75 @@ window.addEventListener('message', function(event) {
         // Enviar la URL a Django
         enviarURLADjango(urlQuirk);
     }
+    else if (event.data && event.data.type === 'edit circuit') {
+        // Obtener la URL actual de Quirk
+        const urlQuirk = obtenerURL();
+        console.log("URL actual de Quirk:", urlQuirk); // Comprobar si la URL se obtiene correctamente
+        // Obtener la URL global de Quirk desde quirk.template.html
+        let urlGlobalQuirk = window.urlAntesDeCadena;
+        urlGlobalQuirk = decodeURIComponent(urlGlobalQuirk);
+        console.log("-----------------------------------");
+        console.log("URL global decodificada de Quirk:", urlGlobalQuirk); // Comprobar si la URL global se decodifica correctamente
+        console.log("URL actual de Quirk:", urlQuirk); // Comprobar si la URL actual se obtiene correctamente
+        console.log("-----------------------------------");
+        // Comprobar si la URL actual de Quirk es igual a la URL global de Quirk
+        if (urlQuirk === urlGlobalQuirk) {
+            console.log("La URL actual de Quirk es igual a la URL global de Quirk");
+            window.location.href = `http://localhost:3000/mis-circuitos`;
+        } else {
+                // Obtener la cadena del circuito desde quirk.template.html
+                let cadenaCircuito = window.cadenaCircuito;
+                console.log("Enviando la cadena global con la URL actual de Quirk a un nuevo endpoint en Quirk");
+                console.log("URL actual de Quirk:", urlQuirk); // Agregar este mensaje de registro
+                console.log("Cadena de circuito:", cadenaCircuito); // Agregar este mensaje de registro
+                console.log("HOLAAAA");
+                enviarURLADjangoEditada(urlQuirk, cadenaCircuito);            
+        }
+    }    
 });
+
+
+
+function enviarURLADjangoEditada(urlQuirk, cadenaCircuito) {
+    console.log("Enviando solicitud para actualizar la URL del circuito...");
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://localhost:8000/actualizar_url_circuito/", true);
+    xhr.setRequestHeader("Content-Type", "application/json");  // Establecer el tipo de contenido como JSON
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                console.log("Datos enviados exitosamente a Django");
+                // Obtener la respuesta de Django
+                var response = JSON.parse(xhr.responseText);
+                // Verificar si se recibió la URL y la cadena
+                if (response.url) {
+                    console.log("URL actualizada:", response.url);
+                    // Si necesitas manejar la respuesta del servidor aquí, puedes hacerlo
+                    window.location.href = `http://localhost:3000/mis-circuitos`;
+                } else {
+                    console.error("Error: No se recibió la URL esperada desde Django");
+                    // Mensaje de error en el cliente
+                    alert("Error al actualizar la URL en el servidor.");
+                }
+            } else {
+                console.error("Error al enviar los datos a Django. Código de estado:", xhr.status);
+                // Mensaje de error en el cliente
+                alert("Error en la solicitud al servidor.");
+            }
+        }
+    };
+    xhr.onerror = function() {
+        console.error("Error de red al enviar los datos a Django");
+        // Mensaje de error en el cliente
+        alert("Error de red al enviar la solicitud al servidor.");
+    };
+    var data = JSON.stringify({urlQuirk: urlQuirk, cadenaCircuito: cadenaCircuito}); // Convertir a JSON
+    console.log("Datos enviados:", data);
+    xhr.send(data);
+}
+
+
+
 
 function enviarURLADjango(urlQuirk) {
     var xhr = new XMLHttpRequest();
@@ -147,6 +212,7 @@ function enviarURLADjango(urlQuirk) {
         console.error("Error de red al enviar la URL a Django");
     };
     var data = "urlQuirk=" + encodeURIComponent(urlQuirk);
+    console.log("Datos enviados:", data);
     xhr.send(data);
 }
 
