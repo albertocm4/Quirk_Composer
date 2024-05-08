@@ -10,6 +10,13 @@ const Resultados = () => {
   const [circuitos, setCircuitos] = useState([]);
   const [selectedCircuito, setSelectedCircuito] = useState(null);
   const [selectedCodigo, setSelectedCodigo] = useState(null); // Nuevo estado para almacenar el código seleccionado
+  const [selectedTareaId, setSelectedTareaId] = useState(null); // Nuevo estado para almacenar el ID de la tarea seleccionada
+  const [selectedTipoCircuito, setSelectedTipoCircuito] = useState(null); // Nuevo estado para almacenar el tipo de circuito seleccionado
+  const [selectedEstado, setSelectedEstado] = useState(null); // Nuevo estado para almacenar el estado de la tarea seleccionada
+  // Función para mostrar mensajes
+    const showMessage = (message) => {
+      alert(message);
+    };
 
   useEffect(() => {
     const fetchCircuitos = async () => {
@@ -34,9 +41,29 @@ const Resultados = () => {
     setSelectedCodigo(null); // Reiniciar el código seleccionado al mostrar detalles del circuito
   };
 
-  const handleVerGrafico = (codigo) => {
-    setSelectedCodigo(codigo);
+  const handleVerGrafico = async (codigo, tarea_id, tipo_circuito) => {
+    if (!codigo) {
+      // try {
+      //   console.log('Solicitud para obtener el resultado de la tarea con ID:', tarea_id);
+      //   const response = await axios.post('http://localhost:8000/check_task_result/', {
+      //     tarea_id: tarea_id,
+      //     email: user.email,
+      //   });
+      //   console.log('Respuesta de la solicitud a Django:', response);
+      //   setSelectedCodigo(response.data.resultado); // Establecer el código seleccionado en el estado
+      setSelectedTipoCircuito(tipo_circuito);  
+      setSelectedTareaId(tarea_id);
+      setSelectedEstado('DISPONIBLE');
+        // Manejar la respuesta de Django aquí, probablemente estableciendo el resultado en el estado del componente
+      // } catch (error) {
+      //   console.error('Error al obtener el resultado de la tarea:', error);
+      // }
+    } else {
+      setSelectedCodigo(codigo);
+      setSelectedEstado('DISPONIBLE');
+    }
   };
+  
 
   const handleBorrarCodigo = async (codigoABorrar) => {
     try {
@@ -89,11 +116,91 @@ const Resultados = () => {
   };
   
   useEffect(() => {
-    if (selectedCodigo) {
+    console.log('Ejecutando useEffect para visualizar ');
+    console.log('selectedCodigo_useEffect:', selectedCodigo);
+    console.log('selectedTareaId_useEffect:', selectedTareaId);
+    // Aquí sería si selectedCodigo está vacío. Si no, se renderiza el gráfico individual.
+    if (!selectedCodigo && selectedTareaId) {
+      console.log('Visualizando estado de tarea con ID:', selectedTareaId);
+      visualizerState(selectedTareaId, selectedTipoCircuito);
+    } else if (selectedCodigo){
+      console.log('Renderizando gráfico para el código:', selectedCodigo);
       renderIndividualChart(selectedCodigo);
     }
-  }, [selectedCodigo]);
+  }, [selectedCodigo, selectedTareaId, selectedTipoCircuito]);
   
+
+
+
+
+
+
+
+
+
+
+  const visualizerState = async (selectedTareaId, selectedTipoCircuito) => {
+    console.log('Verificando el estado de la tarea con ID:', selectedTareaId);
+    try {
+      const response = await axios.post('http://localhost:8000/check_task_result/', {
+        task_id: selectedTareaId,
+        email: user.email,
+        tipo_circuito: selectedTipoCircuito,
+      });
+      console.log('Respuesta de la verificación de la tarea STATUS:', response.data.result);
+      console.log('Respuesta de la verificación de la tarea RESULTADO:', response.data.resultado);
+  
+        // Establecer el código seleccionado solo si el estado de la tarea es completado
+      if (response.data.result !== null) {
+        console.log('El estado de la tarea está completado.');
+         setSelectedCodigo(response.data.result);
+        //  setSelectedTareaId(selectedTareaId);
+         setSelectedTipoCircuito(selectedTipoCircuito);
+         renderIndividualChart(response.data.result);
+        
+      } else {
+        console.log('El estado de la tarea no está definido en la respuesta.');
+        setSelectedEstado(null)
+      }
+    } catch (error) {
+      console.error('Error al verificar la tarea:', error);
+    }
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+  // const visualizerState = async (selectedTareaId) => {
+  //   console.log('Verificando el estado de la tarea con ID:', selectedTareaId);
+  //   try {
+  //     const response = await axios.post('http://localhost:8000/check_task_result/', {
+  //       task_id: selectedTareaId,
+  //       email: user.email,
+  //     });
+  //     console.log('Respuesta de la verificación de la tarea:', response.data);
+  //     console.log('Respuesta de la verificación de la tarea con status:', response.data.status);
+  //   // Obtener el estado de la tarea
+  //   const taskStatus = response.data.status;
+  //   if (response.data.resultado !== 'None') {
+  //   setSelectedCodigo(response.data.resultado) // Establecer el código seleccionado en el estado
+  //   }
+  //   setSelectedTareaId(selectedTareaId)
+
+  //   } catch (error) {
+  //     console.error('Error al verificar la tarea:', error);
+  //   }
+  // };
+  
+
+
   const renderIndividualChart = (datos) => {
     if (!datos) return;
   
@@ -129,39 +236,49 @@ const Resultados = () => {
   return (
     <div>
       <h2>Resultados de circuitos:</h2>
-      {selectedCodigo && (
+      {/* Mostrar el gráfico si selectedCodigo no es nulo */}
+      {selectedCodigo && selectedEstado && (
         <div>
           <h3>Gráfico del código {selectedCodigo}:</h3>
           <canvas id="myChart" style={{ width: '250px !important', height: '250px !important' }}></canvas>
           <button onClick={() => handleBorrarCodigo(selectedCodigo)}>Borrar código</button>
-          <button onClick={() => setSelectedCodigo(null)}>Volver</button>
+          <button onClick={() => {setSelectedCodigo(null); setSelectedTareaId(null);}}>Volver</button>
         </div>
       )}
-      {!selectedCodigo && selectedCircuito && (
-  <div>
-    <h3>Detalles del circuito:</h3>
-    <h4>Códigos de tipo AWS:</h4>
-    <ul>
-      {selectedCircuito.resultados.filter(resultado => resultado.tipo_circuito === 'AWS').map((resultado, index) => (
-        <li key={index}>
-          <p>Código: {resultado.codigo}</p>
-          <button onClick={() => handleVerGrafico(resultado.codigo)}>Ver gráfico</button>
-        </li>
-      ))}
-    </ul>
-    <h4>Códigos de tipo IBM:</h4>
-    <ul>
-      {selectedCircuito.resultados.filter(resultado => resultado.tipo_circuito === 'IBM').map((resultado, index) => (
-        <li key={index}>
-          <p>Código: {resultado.codigo}</p>
-          <button onClick={() => handleVerGrafico(resultado.codigo)}>Ver gráfico</button>
-        </li>
-      ))}
-    </ul>
-    <button onClick={() => setSelectedCircuito(null)}>Volver</button>
-  </div>
-)}
-
+      {!selectedCodigo && selectedTareaId && !selectedEstado &&  (
+        <div>
+          <h3>El circuito con el ID | {selectedTareaId} | de {selectedTipoCircuito} aún no está disponible. Vuelve a intentarlo después nuevamente.</h3>
+          <button onClick={() => {setSelectedCodigo(null); setSelectedTareaId(null);}}>Volver</button>
+        </div>
+      )}
+      {/* Mostrar detalles del circuito si selectedCircuito no es nulo */}
+      {!selectedCodigo && selectedCircuito && !selectedTareaId && (
+        <div>
+          <h3>Detalles del circuito:</h3>
+          <h4>Códigos de tipo AWS:</h4>
+          <ul>
+            {selectedCircuito.resultados.filter(resultado => resultado.tipo_circuito === 'AWS').map((resultado, index) => (
+              <li key={index}>
+                <p>Código: {resultado.codigo}</p>
+                <p>Tarea: {resultado.tarea_id}</p>
+                <button onClick={() => handleVerGrafico(resultado.codigo, resultado.tarea_id, resultado.tipo_circuito)}>Ver gráfico</button>
+              </li>
+            ))}
+          </ul>
+          <h4>Códigos de tipo IBM:</h4>
+          <ul>
+            {selectedCircuito.resultados.filter(resultado => resultado.tipo_circuito === 'IBM').map((resultado, index) => (
+              <li key={index}>
+                <p>Código: {resultado.codigo}</p>
+                <p>Tarea: {resultado.tarea_id}</p>
+                <button onClick={() => handleVerGrafico(resultado.codigo, resultado.tarea_id, resultado.tipo_circuito)}>Ver gráfico</button>
+              </li>
+            ))}
+          </ul>
+          <button onClick={() => setSelectedCircuito(null)}>Volver</button>
+        </div>
+      )}
+      {/* Mostrar mensaje sobre cómo va la tarea si selectedCodigo es nulo */}
       {!selectedCodigo && !selectedCircuito && (
         <ul>
           {circuitos.map((circuito, index) => (
@@ -174,6 +291,6 @@ const Resultados = () => {
       )}
     </div>
   );
-}
+}  
 
 export default Resultados;
