@@ -1,0 +1,22 @@
+.centered-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 3%;
+}
+
+.centered-button button {
+  padding: 15px 30px; /* Padding interno del botón */
+  font-size: 1.2rem; /* Tamaño de fuente */
+  background-color: #0267f9; /* Color de fondo */
+  color: white; /* Color del texto */
+  border: none; /* Sin borde */
+  border-radius: 10px; /* Borde redondeado */
+  cursor: pointer; /* Cursor de tipo puntero al pasar el ratón */
+  transition: background-color 0.3s ease; /* Transición suave del color de fondo */
+}
+
+.centered-button button:hover {
+  background-color: #40B2DB; /* Cambio de color de fondo al pasar el ratón */
+}
+

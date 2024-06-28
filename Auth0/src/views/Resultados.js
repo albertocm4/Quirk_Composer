@@ -1,213 +1,152 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useUserEmail } from '../components/UserEmailContext'; 
-import { useAuth0 } from '@auth0/auth0-react';
-import Chart from 'chart.js/auto'; // Importar Chart.js
+import { useUserEmail } from '../components/UserEmailContext';
+import { useAuth0, withAuthenticationRequired } from '@auth0/auth0-react';
+import Chart from 'chart.js/auto';
+import '../Resultados.css';
+import LoadingOverlay from '../components/LoadingOverlayR';
 
 const Resultados = () => {
   const { user } = useAuth0();
   const { setUserEmail } = useUserEmail();
   const [circuitos, setCircuitos] = useState([]);
   const [selectedCircuito, setSelectedCircuito] = useState(null);
-  const [selectedCodigo, setSelectedCodigo] = useState(null); // Nuevo estado para almacenar el código seleccionado
-  const [selectedTareaId, setSelectedTareaId] = useState(null); // Nuevo estado para almacenar el ID de la tarea seleccionada
-  const [selectedTipoCircuito, setSelectedTipoCircuito] = useState(null); // Nuevo estado para almacenar el tipo de circuito seleccionado
-  const [selectedEstado, setSelectedEstado] = useState(null); // Nuevo estado para almacenar el estado de la tarea seleccionada
-  // Función para mostrar mensajes
-    const showMessage = (message) => {
-      alert(message);
-    };
+  const [selectedCodigo, setSelectedCodigo] = useState(null);
+  const [selectedTareaId, setSelectedTareaId] = useState(null);
+  const [selectedTipoCircuito, setSelectedTipoCircuito] = useState(null);
+  const [selectedEstado, setSelectedEstado] = useState(null);
+  const [idCircuito, setIdCircuito] = useState(null);
+  const [nombreCircuitoR, setNombreCircuitoR] = useState(null);
+  const [filtro, setFiltro] = useState('');
+  const [isExecuting, setIsExecuting] = useState(false);
 
   useEffect(() => {
     const fetchCircuitos = async () => {
       try {
         if (user && user.email) {
           setUserEmail(user.email);
-          const response = await axios.get(`http://localhost:8000/obtener_resultados_por_email/?email=${user.email}`);
-          console.log('Respuesta de la solicitud axios:', response);
-          const circuitosConResultados = response.data.circuitos.filter(circuito => circuito.resultados.length > 0); // Filtrar circuitos con resultados
-          setCircuitos(circuitosConResultados);
+          const response = await axios.get(`http://localhost:8000/obtener_nombres_circuitos_por_email/?email=${user.email}`);
+          setCircuitos(response.data.circuitos);
+          console.log("Circuitos:", response.data.circuitos);
         }
       } catch (error) {
         console.error('Error al obtener los circuitos:', error);
       }
     };
-  
     fetchCircuitos();
   }, [user]);
 
-  const handleVerDetalles = (circuito) => {
-    setSelectedCircuito(circuito);
-    setSelectedCodigo(null); // Reiniciar el código seleccionado al mostrar detalles del circuito
-  };
-
-  const handleVerGrafico = async (codigo, tarea_id, tipo_circuito) => {
-    if (!codigo) {
-      // try {
-      //   console.log('Solicitud para obtener el resultado de la tarea con ID:', tarea_id);
-      //   const response = await axios.post('http://localhost:8000/check_task_result/', {
-      //     tarea_id: tarea_id,
-      //     email: user.email,
-      //   });
-      //   console.log('Respuesta de la solicitud a Django:', response);
-      //   setSelectedCodigo(response.data.resultado); // Establecer el código seleccionado en el estado
-      setSelectedTipoCircuito(tipo_circuito);  
-      setSelectedTareaId(tarea_id);
-      setSelectedEstado('DISPONIBLE');
-        // Manejar la respuesta de Django aquí, probablemente estableciendo el resultado en el estado del componente
-      // } catch (error) {
-      //   console.error('Error al obtener el resultado de la tarea:', error);
-      // }
-    } else {
-      setSelectedCodigo(codigo);
-      setSelectedEstado('DISPONIBLE');
+  const handleVerDetalles = async (circuito) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/obtener_resultados_circuito/?id=${circuito.id}`);
+      setSelectedCircuito({ ...circuito, resultados: response.data.resultados });
+      setSelectedCodigo(null);
+      console.log("Circuitos:", response.data.resultados);
+      console.log("Circuito seleccionado:", circuito);
+    } catch (error) {
+      console.error('Error al obtener los detalles del circuito:', error);
     }
   };
-  
+
+  const handleVerGrafico = async (codigo, tarea_id, tipo_circuito, id) => {
+    setSelectedCodigo(codigo);
+    setSelectedTareaId(tarea_id);
+    console.log("Task ID:", tarea_id);
+    setIdCircuito(id);
+    console.log("ID Circuito:", id);
+    setSelectedTipoCircuito(tipo_circuito);
+    setSelectedEstado('DISPONIBLE');
+  };
 
   const handleBorrarCodigo = async (codigoABorrar) => {
+      // Mostrar confirmación
+  const confirmacion = window.confirm("¿Está seguro de que desea borrar el resultado?");
+
+  // Si el usuario elige "No", no hacer nada
+  if (!confirmacion) {
+    return;
+  }
+    console.log("Código a borrarEMPEZAR:", codigoABorrar);
     try {
-      // Buscar el resultado con el código correspondiente
-      const resultadoABorrar = circuitos.flatMap(circuito => circuito.resultados).find(resultado => resultado.codigo === codigoABorrar);
-  
-      if (!resultadoABorrar) {
-        console.error('No se encontró el resultado con el código:', codigoABorrar);
+      console.log("Código a borrar:", codigoABorrar);
+
+      if (!circuitos || !selectedCircuito) {
+        console.error('Circuitos o el circuito seleccionado no están definidos');
         return;
       }
-  
-      const response = await axios.delete(`http://localhost:8000/resultados/borrar/${resultadoABorrar.id}/`);
-      console.log(response.data.message); // Mensaje de éxito
-  
-      // Después de borrar el resultado, actualiza la lista de circuitos para reflejar los cambios
+
+      const resultadoIdABorrar = idCircuito;
+      console.log("Resultado ID a borrar:", resultadoIdABorrar);
+      await axios.delete(`http://localhost:8000/resultados/borrar/${resultadoIdABorrar}/`);
+
       const updatedCircuitos = await fetchCircuitos();
       setCircuitos(updatedCircuitos);
-  
-      // Filtra los resultados del circuito para eliminar el resultado que coincide con el código que se borró
+
+      setIdCircuito(null);
+
       const updatedSelectedCircuito = { ...selectedCircuito };
-      updatedSelectedCircuito.resultados = updatedSelectedCircuito.resultados.filter(resultado => resultado.codigo !== codigoABorrar);
+      updatedSelectedCircuito.resultados = updatedSelectedCircuito.resultados.filter(resultado => resultado.id !== resultadoIdABorrar);
       setSelectedCircuito(updatedSelectedCircuito);
-  
-      // Restablecer selectedCodigo a null para volver a la lista de circuitos
+
       setSelectedCodigo(null);
-  
-      // Verificar si el listado de códigos está vacío y simular el evento de hacer clic en el botón "Volver"
       if (updatedSelectedCircuito.resultados.length === 0) {
         setSelectedCircuito(null);
       }
+      setSelectedTareaId(null);
     } catch (error) {
-      console.error('Error al borrar el resultado:', error.response.data.error); // Mensaje de error
+      console.error('Error al borrar el resultado:', error.response ? error.response.data.error : error.message);
     }
   };
-  
-  
-  
+
   const fetchCircuitos = async () => {
     try {
       if (user && user.email) {
         setUserEmail(user.email);
-        const response = await axios.get(`http://localhost:8000/obtener_resultados_por_email/?email=${user.email}`);
-        console.log('Respuesta de la solicitud axios:', response);
-        const circuitosConResultados = response.data.circuitos.filter(circuito => circuito.resultados.length > 0); // Filtrar circuitos con resultados
-        return circuitosConResultados;
+        const response = await axios.get(`http://localhost:8000/obtener_nombres_circuitos_por_email/?email=${user.email}`);
+        return response.data.circuitos;
       }
     } catch (error) {
       console.error('Error al obtener los circuitos:', error);
     }
   };
-  
+
   useEffect(() => {
-    console.log('Ejecutando useEffect para visualizar ');
-    console.log('selectedCodigo_useEffect:', selectedCodigo);
-    console.log('selectedTareaId_useEffect:', selectedTareaId);
-    // Aquí sería si selectedCodigo está vacío. Si no, se renderiza el gráfico individual.
     if (!selectedCodigo && selectedTareaId) {
-      console.log('Visualizando estado de tarea con ID:', selectedTareaId);
       visualizerState(selectedTareaId, selectedTipoCircuito);
-    } else if (selectedCodigo){
-      console.log('Renderizando gráfico para el código:', selectedCodigo);
+    } else if (selectedCodigo) {
       renderIndividualChart(selectedCodigo);
     }
   }, [selectedCodigo, selectedTareaId, selectedTipoCircuito]);
-  
-
-
-
-
-
-
-
-
-
 
   const visualizerState = async (selectedTareaId, selectedTipoCircuito) => {
-    console.log('Verificando el estado de la tarea con ID:', selectedTareaId);
+    setIsExecuting(true);
     try {
       const response = await axios.post('http://localhost:8000/check_task_result/', {
         task_id: selectedTareaId,
         email: user.email,
         tipo_circuito: selectedTipoCircuito,
       });
-      console.log('Respuesta de la verificación de la tarea STATUS:', response.data.result);
-      console.log('Respuesta de la verificación de la tarea RESULTADO:', response.data.resultado);
-  
-        // Establecer el código seleccionado solo si el estado de la tarea es completado
+
       if (response.data.result !== null) {
-        console.log('El estado de la tarea está completado.');
-         setSelectedCodigo(response.data.result);
-        //  setSelectedTareaId(selectedTareaId);
-         setSelectedTipoCircuito(selectedTipoCircuito);
-         renderIndividualChart(response.data.result);
-        
+        setSelectedCodigo(response.data.result);
+        renderIndividualChart(response.data.result);
       } else {
-        console.log('El estado de la tarea no está definido en la respuesta.');
-        setSelectedEstado(null)
+        setSelectedEstado(null);
       }
     } catch (error) {
       console.error('Error al verificar la tarea:', error);
+    } finally {
+      setIsExecuting(false);
     }
   };
 
-
-
-
-
-
-
-
-
-
-
-
-  // const visualizerState = async (selectedTareaId) => {
-  //   console.log('Verificando el estado de la tarea con ID:', selectedTareaId);
-  //   try {
-  //     const response = await axios.post('http://localhost:8000/check_task_result/', {
-  //       task_id: selectedTareaId,
-  //       email: user.email,
-  //     });
-  //     console.log('Respuesta de la verificación de la tarea:', response.data);
-  //     console.log('Respuesta de la verificación de la tarea con status:', response.data.status);
-  //   // Obtener el estado de la tarea
-  //   const taskStatus = response.data.status;
-  //   if (response.data.resultado !== 'None') {
-  //   setSelectedCodigo(response.data.resultado) // Establecer el código seleccionado en el estado
-  //   }
-  //   setSelectedTareaId(selectedTareaId)
-
-  //   } catch (error) {
-  //     console.error('Error al verificar la tarea:', error);
-  //   }
-  // };
-  
-
-
   const renderIndividualChart = (datos) => {
     if (!datos) return;
-  
+
     const parsedData = JSON.parse(datos.replace(/'/g, '"'));
     const labels = Object.keys(parsedData);
     const values = Object.values(parsedData);
-  
+
     const ctx = document.getElementById('myChart');
     if (ctx) {
       new Chart(ctx, {
@@ -219,78 +158,114 @@ const Resultados = () => {
             data: values,
             backgroundColor: 'rgba(54, 162, 235, 0.2)',
             borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-          }]
+            borderWidth: 1,
+          }],
         },
         options: {
+          responsive: true,
           scales: {
             y: {
-              beginAtZero: true
-            }
-          }
-        }
+              beginAtZero: true,
+            },
+          },
+        },
       });
     }
   };
 
+  const handleFiltroAWS = () => {
+    setFiltro('AWS');
+  };
+
+  const handleFiltroIBM = () => {
+    setFiltro('IBM');
+  };
+
   return (
-    <div>
-      <h2>Resultados de circuitos:</h2>
-      {/* Mostrar el gráfico si selectedCodigo no es nulo */}
+    <div className="resultados-container">
+      {isExecuting && <LoadingOverlay />}
+      <h2>Resultados de circuitos</h2>
       {selectedCodigo && selectedEstado && (
-        <div>
+        <div className="resultado-item">
           <h3>Gráfico del código {selectedCodigo}:</h3>
-          <canvas id="myChart" style={{ width: '250px !important', height: '250px !important' }}></canvas>
-          <button onClick={() => handleBorrarCodigo(selectedCodigo)}>Borrar código</button>
-          <button onClick={() => {setSelectedCodigo(null); setSelectedTareaId(null);}}>Volver</button>
+          <canvas id="myChart"></canvas>
+          <div className="resultado-buttons">
+            <button className='resultado-b-only' onClick={() => handleBorrarCodigo(selectedCodigo)}>Borrar resultado</button>
+            <span> <button onClick={() => { setSelectedCodigo(null); setSelectedTareaId(null); }}>Volver</button></span>
+          </div>
         </div>
       )}
-      {!selectedCodigo && selectedTareaId && !selectedEstado &&  (
-        <div>
+      {!selectedCodigo && selectedTareaId && !selectedEstado && (
+        <div className="resultado-item">
           <h3>El circuito con el ID | {selectedTareaId} | de {selectedTipoCircuito} aún no está disponible. Vuelve a intentarlo después nuevamente.</h3>
-          <button onClick={() => {setSelectedCodigo(null); setSelectedTareaId(null);}}>Volver</button>
+          <div className="resultado-buttons">
+            <button onClick={() => { setSelectedCodigo(null); setSelectedTareaId(null); setNombreCircuitoR(null); }}>Volver</button>
+          </div>
         </div>
       )}
-      {/* Mostrar detalles del circuito si selectedCircuito no es nulo */}
       {!selectedCodigo && selectedCircuito && !selectedTareaId && (
-        <div>
-          <h3>Detalles del circuito:</h3>
-          <h4>Códigos de tipo AWS:</h4>
+        <div className="resultado-item">
+          <div className="filtro-container">
+            <button onClick={handleFiltroAWS}>AWS</button>
+            <button onClick={handleFiltroIBM}>IBM</button>
+          </div>
+          <div className="resultados-header">
+            <h4>{nombreCircuitoR}</h4>
+          </div>
+          {filtro && (
+            <div className="detalle-header">
+              <h4>Plataforma {filtro}:</h4>
+            </div>
+          )}
           <ul>
-            {selectedCircuito.resultados.filter(resultado => resultado.tipo_circuito === 'AWS').map((resultado, index) => (
-              <li key={index}>
-                <p>Código: {resultado.codigo}</p>
-                <p>Tarea: {resultado.tarea_id}</p>
-                <button onClick={() => handleVerGrafico(resultado.codigo, resultado.tarea_id, resultado.tipo_circuito)}>Ver gráfico</button>
+            {selectedCircuito.resultados.filter(resultado => resultado.tipo_circuito === filtro).map((resultado, index) => (
+              <li key={index} className="resultado-item">
+                <div className="resultado-detalle">
+                <p>
+                  <span className="label">Código: </span>
+                  <span className="value">{resultado.codigo}</span>
+                </p>
+                <p>
+                  <span className="label">Tarea: </span>
+                  <span className="value">{resultado.tarea_id}</span>
+                </p>
+                <p>
+                  <span className="label">ID del circuito: </span>
+                  <span className="value">{resultado.id}</span>
+                </p>
+                </div>
+                <div className="resultado-buttons-lista">
+                  <button onClick={() => handleVerGrafico(resultado.codigo, resultado.tarea_id, resultado.tipo_circuito, resultado.id)}>Ver gráfico</button>
+                </div>
               </li>
             ))}
           </ul>
-          <h4>Códigos de tipo IBM:</h4>
-          <ul>
-            {selectedCircuito.resultados.filter(resultado => resultado.tipo_circuito === 'IBM').map((resultado, index) => (
-              <li key={index}>
-                <p>Código: {resultado.codigo}</p>
-                <p>Tarea: {resultado.tarea_id}</p>
-                <button onClick={() => handleVerGrafico(resultado.codigo, resultado.tarea_id, resultado.tipo_circuito)}>Ver gráfico</button>
-              </li>
-            ))}
-          </ul>
-          <button onClick={() => setSelectedCircuito(null)}>Volver</button>
+          <div className="resultado-buttons">
+            <button onClick={() => { setSelectedCircuito(null); setIdCircuito(null); setNombreCircuitoR(null); setFiltro(null); }}>Volver</button>
+          </div>
         </div>
       )}
-      {/* Mostrar mensaje sobre cómo va la tarea si selectedCodigo es nulo */}
-      {!selectedCodigo && !selectedCircuito && (
-        <ul>
-          {circuitos.map((circuito, index) => (
-            <li key={index}>
-              <span>Nombre: {circuito.nombre} </span>
-              <button onClick={() => handleVerDetalles(circuito)}>Ver resultados</button>
-            </li>
-          ))}
-        </ul>
+      {!selectedCircuito && (
+        <div className="resultado-item">
+          <h4>Seleccione un circuito:</h4>
+          <ul>
+            {circuitos.map((circuito, index) => (
+              <li key={index} className="resultado-item">
+                <div>
+                  <h5>{circuito.nombre}</h5>
+                </div>
+                <div className="resultado-buttons">
+                  <button onClick={() => { setNombreCircuitoR(circuito.nombre ? circuito.nombre : `${circuito.id}`); handleVerDetalles(circuito) }}>Ver detalles</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );
-}  
+}
 
-export default Resultados;
+export default withAuthenticationRequired(Resultados, {
+  onRedirecting: () => <div>Cargando...</div>,
+});

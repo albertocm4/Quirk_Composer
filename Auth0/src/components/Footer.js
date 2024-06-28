@@ -4,7 +4,7 @@ const Footer = () => (
   <footer className="bg-light p-3 text-center">
     <div className="logo" />
     <p>
-      Sample project provided by <a href="https://auth0.com">Auth0</a>
+    Project carried out in the <a href="https://spilab.es/">SPILab</a> laboratory
     </p>
   </footer>
 );

@@ -52,21 +52,10 @@ const NavBar = () => {
                   exact
                   activeClassName="router-link-exact-active"
                 >
-                  Home
+                  Inicio
                 </NavLink>
               </NavItem>
               {isAuthenticated && (
-                <NavItem>
-                  <NavLink
-                    tag={RouterNavLink}
-                    to="/external-api"
-                    exact
-                    activeClassName="router-link-exact-active"
-                  >
-                    External API
-                  </NavLink>
-                </NavItem>
-              )}
               <NavItem>
                 <NavLink
                   tag={RouterNavLink}
@@ -77,6 +66,8 @@ const NavBar = () => {
                   Mis Circuitos
                 </NavLink>
               </NavItem>
+            )}
+            {isAuthenticated && (
               <NavItem>
               <NavLink
                 tag={RouterNavLink}
@@ -87,6 +78,7 @@ const NavBar = () => {
                 Resultados  
               </NavLink>
             </NavItem>
+            )}
             </Nav>
             <Nav className="d-none d-md-block" navbar>
               {!isAuthenticated && (

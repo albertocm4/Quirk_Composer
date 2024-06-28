@@ -1,0 +1,78 @@
+/* ProfileComponent.css */
+.profile-component {
+ background: #f7f9fc;
+ border-radius: 8px;
+ padding: 20px;
+ box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header {
+ border-bottom: 1px solid #e0e0e0;
+ padding-bottom: 15px;
+ margin-bottom: 20px;
+}
+
+.profile-picture {
+ border: 3px solid #fff;
+ box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+}
+
+.profile-component h2 {
+ color: #333;
+ font-weight: bold;
+}
+
+.profile-component .lead {
+ color: #666;
+}
+
+.profile-component form {
+ background: #fff;
+ padding: 20px;
+ border-radius: 8px;
+ box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.profile-component label {
+ font-weight: bold;
+ color: #333;
+}
+
+.profile-component input {
+ border-radius: 4px;
+ border: 1px solid #ccc;
+ padding: 10px;
+ margin-bottom: 10px;
+ font-size: 14px;
+}
+
+.profile-component input:disabled {
+ background-color: #e9ecef;
+}
+
+.profile-component .btn {
+ border-radius: 4px;
+ padding: 10px 20px;
+ font-size: 14px;
+}
+
+.profile-button {
+  display: flex;
+  justify-content: left;
+  margin-bottom: 3%;
+}
+
+.profile-button button {
+  padding: 15px 30px; /* Padding interno del botón */
+  font-size: 1.8rem; /* Tamaño de fuente */
+  background-color: #0267f9; /* Color de fondo */
+  color: white; /* Color del texto */
+  border-radius: 100px; /* Borde redondeado */
+  cursor: pointer; /* Cursor de tipo puntero al pasar el ratón */
+  transition: background-color 0.3s ease; /* Transición suave del color de fondo */
+  border-color: #333;
+}
+
+.profile-button button:hover {
+  background-color: #40B2DB; /* Cambio de color de fondo al pasar el ratón */
+}

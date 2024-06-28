@@ -1,27 +1,27 @@
 const contentData = [
   {
-    title: "Configure other identity providers",
-    link: "https://auth0.com/docs/connections",
+    title: "Visualizar ejecucición de circuitos",
+    link: "http://localhost:3000/mis-circuitos",
     description:
-      "Auth0 supports social providers as Facebook, Twitter, Instagram and 100+, Enterprise providers as Microsoft Office 365, Google Apps, Azure, and more. You can also use any OAuth2 Authorization Server."
+      "QCraft permite la visualización de la ejecución de circuitos cúanticos tanto para AWS como para IBM, en la que cada una tiene un comportamiento diferente."
   },
   {
-    title: "Enable Multifactor Authentication",
-    link: "https://auth0.com/docs/multifactor-authentication",
+    title: "Analizar la ejecución de circuitos con gráficas",
+    link: "http://localhost:3000/resultados",
     description:
-      "Add an extra layer of security by enabling Multi-factor Authentication, requiring your users to provide more than one piece of identifying information. Push notifications, authenticator apps, SMS, and DUO Security are supported."
+      "La ejecución de los circuitos en diferentes máquinas permite la visualización de los resultados obtenidos mediante gráficas para observar las estadísticas."
   },
   {
-    title: "Anomaly Detection",
-    link: "https://auth0.com/docs/anomaly-detection",
+    title: "Ejecución de circuitos en máquinas de AWS e IBM",
+    link: "http://localhost:3000/profile",
     description:
-      "Auth0 can detect anomalies and stop malicious attempts to access your application. Anomaly detection can alert you and your users of suspicious activity, as well as block further login attempts."
+      "Gracias a nuestra plataforma, es posible la ejecución en distintas máquinas actuales tanto de IBM como de AWS, aunque también permite realizarla localmente para mayor rapidez, aunque menos precisión."
   },
   {
-    title: "Learn About Rules",
-    link: "https://auth0.com/docs/rules",
+    title: "Editar circuitos en tiempo real con ayuda de Quirk",
+    link: "http://localhost:3000/mis-circuitos",
     description:
-      "Rules are JavaScript functions that execute when a user authenticates to your application. They run once the authentication process is complete, and you can use them to customize and extend Auth0's capabilities."
+      "Con ayuda de la cooperación de QCraft con Quirk, permitimos realizar los cambios que se deseen en un circuito ya guardado."
   }
 ];
 

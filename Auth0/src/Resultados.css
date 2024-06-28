@@ -1,0 +1,161 @@
+.resultados-container {
+  margin: 20px auto;
+  max-width: 800px;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-weight: bold;
+}
+
+.resultados-container h2 {
+  color: #343a40;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.resultado-item {
+  background-color: #ffffff;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.resultado-item h3,
+.resultado-item h5 {
+  color: rgb(32, 30, 30);
+  margin: 0;
+}
+
+/* .resultado-item p {
+  color: #6c757d;
+  margin: 5px 0;
+} */
+
+.resultado-detalle {
+  flex: 1;
+  padding-right: 10px;
+}
+
+.resultado-detalle .label {
+  color: black; /* Color para las etiquetas */
+}
+
+.resultado-detalle .value {
+  color: #4c5358; /* Color para los valores */
+}
+
+
+.resultado-item ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.resultado-item ul li {
+  background-color: #e9ecef;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resultado-buttons-lista {
+  display: flex;
+  flex-direction: column; /* Botones uno debajo del otro */
+  justify-content: flex-start; /* Alinea los botones al principio */
+  align-items: flex-end; /* Alinea los botones al final del contenedor */
+  margin-left: 10px;
+  min-width: 150px; /* Puedes ajustar este valor según sea necesario */
+}
+
+.resultado-buttons-lista button {
+  background-color: #4080DB;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-right: 5%;
+}
+
+.resultado-buttons {
+  display: flex;
+  flex-direction: row; /* Botones uno debajo del otro */
+  justify-content: flex-end; /* Alinea los botones al principio */
+  align-items: flex-end; /* Alinea los botones al final del contenedor */
+  margin-left: 10px;
+  min-width: 150px; /* Puedes ajustar este valor según sea necesario */
+}
+
+.resultado-buttons button {
+  background-color: #4080DB;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+
+.resultado-buttons button:hover {
+  background-color: #5f8ed1;
+}
+
+.resultados-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.resultado-b-only {
+  margin-right: 4px;
+}
+
+#myChart {
+  width: 100%;
+  max-height: 400px;
+  margin: 20px 0;
+}
+
+.detalle-header h4 {
+  color: #17a2b8;
+  margin-top: 20px;
+}
+
+@media (max-width: 600px) {
+  .resultado-buttons {
+    flex-direction: column;
+  }
+
+  .resultado-buttons button {
+    flex-direction: column; /* Botones uno al lado del otro */
+    justify-content: space-between; /* Distribuye el espacio entre los botones */
+  }
+}
+
+.filtro-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.filtro-container button {
+  width: 49.7%;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #0267f9;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+  letter-spacing: 3px;
+  font-weight: bold;
+}
+
+.filtro-container button:hover {
+  background-color: #40B2DB;
+}

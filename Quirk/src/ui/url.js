@@ -19,6 +19,7 @@ import {CircuitDefinition} from "../circuit/CircuitDefinition.js"
 import {Config} from "../Config.js"
 import {HistoryPusher} from "../browser/HistoryPusher.js"
 import {fromJsonText_CircuitDefinition, Serializer} from "../circuit/Serializer.js"
+import { takeScreenshotOfCanvas } from "../fallback.js";
 
 function urlWithCircuitHash(jsonText) {
     if (jsonText.indexOf('%') !== -1 || jsonText.indexOf('&') !== -1) {
@@ -144,8 +145,19 @@ window.addEventListener('message', function(event) {
 
 
 
+
+
 function enviarURLADjangoEditada(urlQuirk, cadenaCircuito) {
     console.log("Enviando solicitud para actualizar la URL del circuito...");
+
+    // Obtener la captura de pantalla del canvas
+    let canvas = document.getElementById("drawCanvas");
+    let canvasDataURL = canvas.toDataURL("image/png");
+    console.log("Captura de pantalla del canvas:", canvasDataURL);
+
+    // Crear un objeto JSON para enviar los datos
+    var data = JSON.stringify({urlQuirk: urlQuirk, cadenaCircuito: cadenaCircuito, screenshotUrl: canvasDataURL});
+
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "http://localhost:8000/actualizar_url_circuito/", true);
     xhr.setRequestHeader("Content-Type", "application/json");  // Establecer el tipo de contenido como JSON
@@ -153,42 +165,80 @@ function enviarURLADjangoEditada(urlQuirk, cadenaCircuito) {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
                 console.log("Datos enviados exitosamente a Django");
-                // Obtener la respuesta de Django
                 var response = JSON.parse(xhr.responseText);
-                // Verificar si se recibió la URL y la cadena
                 if (response.url) {
                     console.log("URL actualizada:", response.url);
-                    // Si necesitas manejar la respuesta del servidor aquí, puedes hacerlo
                     window.location.href = `http://localhost:3000/mis-circuitos`;
                 } else {
                     console.error("Error: No se recibió la URL esperada desde Django");
-                    // Mensaje de error en el cliente
                     alert("Error al actualizar la URL en el servidor.");
                 }
             } else {
                 console.error("Error al enviar los datos a Django. Código de estado:", xhr.status);
-                // Mensaje de error en el cliente
                 alert("Error en la solicitud al servidor.");
             }
         }
     };
     xhr.onerror = function() {
         console.error("Error de red al enviar los datos a Django");
-        // Mensaje de error en el cliente
         alert("Error de red al enviar la solicitud al servidor.");
     };
-    var data = JSON.stringify({urlQuirk: urlQuirk, cadenaCircuito: cadenaCircuito}); // Convertir a JSON
     console.log("Datos enviados:", data);
     xhr.send(data);
 }
 
 
-
+// function enviarURLADjangoEditada(urlQuirk, cadenaCircuito) {
+//     console.log("Enviando solicitud para actualizar la URL del circuito...");
+//     var xhr = new XMLHttpRequest();
+//     xhr.open("POST", "http://localhost:8000/actualizar_url_circuito/", true);
+//     xhr.setRequestHeader("Content-Type", "application/json");  // Establecer el tipo de contenido como JSON
+//     xhr.onreadystatechange = function () {
+//         if (xhr.readyState === 4) {
+//             if (xhr.status === 200) {
+//                 console.log("Datos enviados exitosamente a Django");
+//                 // Obtener la respuesta de Django
+//                 var response = JSON.parse(xhr.responseText);
+//                 // Verificar si se recibió la URL y la cadena
+//                 if (response.url) {
+//                     console.log("URL actualizada:", response.url);
+//                     // Si necesitas manejar la respuesta del servidor aquí, puedes hacerlo
+//                     window.location.href = `http://localhost:3000/mis-circuitos`;
+//                 } else {
+//                     console.error("Error: No se recibió la URL esperada desde Django");
+//                     // Mensaje de error en el cliente
+//                     alert("Error al actualizar la URL en el servidor.");
+//                 }
+//             } else {
+//                 console.error("Error al enviar los datos a Django. Código de estado:", xhr.status);
+//                 // Mensaje de error en el cliente
+//                 alert("Error en la solicitud al servidor.");
+//             }
+//         }
+//     };
+//     xhr.onerror = function() {
+//         console.error("Error de red al enviar los datos a Django");
+//         // Mensaje de error en el cliente
+//         alert("Error de red al enviar la solicitud al servidor.");
+//     };
+//     var data = JSON.stringify({urlQuirk: urlQuirk, cadenaCircuito: cadenaCircuito}); // Convertir a JSON
+//     console.log("Datos enviados:", data);
+//     xhr.send(data);
+// }
 
 function enviarURLADjango(urlQuirk) {
+    // Obtener la captura de pantalla del canvas
+    let canvas = document.getElementById("drawCanvas");
+    let canvasDataURL = canvas.toDataURL("image/png");
+    console.log("Captura de pantalla del canvas:", canvasDataURL);
+
+    // Crear un objeto JSON para enviar los datos
+    var data = JSON.stringify({urlQuirk: urlQuirk, screenshotUrl: canvasDataURL});
+
+    // Crear una solicitud AJAX usando XMLHttpRequest
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "http://localhost:8000/recibir_url_quirk/", true);
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.setRequestHeader("Content-Type", "application/json");  // Establecer el tipo de contenido como JSON
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
@@ -211,10 +261,43 @@ function enviarURLADjango(urlQuirk) {
     xhr.onerror = function() {
         console.error("Error de red al enviar la URL a Django");
     };
-    var data = "urlQuirk=" + encodeURIComponent(urlQuirk);
-    console.log("Datos enviados:", data);
+    // Enviar los datos JSON
     xhr.send(data);
 }
+
+
+
+
+// function enviarURLADjango(urlQuirk) {
+//     var xhr = new XMLHttpRequest();
+//     xhr.open("POST", "http://localhost:8000/recibir_url_quirk/", true);
+//     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+//     xhr.onreadystatechange = function () {
+//         if (xhr.readyState === 4) {
+//             if (xhr.status === 200) {
+//                 console.log("URL enviada exitosamente a Django");
+//                 // Obtener la respuesta de Django
+//                 var response = JSON.parse(xhr.responseText);
+//                 // Verificar si se recibió la URL
+//                 if (response.url && response.cadena) {
+//                     console.log("URL con ID:", response.url);
+//                     // Enviar la cadena a la aplicación de React
+//                     enviarIDAReact(response.cadena);
+//                 } else {
+//                     console.error("Error: No se recibió la URL o la cadena esperada desde Django");
+//                 }
+//             } else {
+//                 console.error("Error al enviar la URL a Django. Código de estado:", xhr.status);
+//             }
+//         }
+//     };
+//     xhr.onerror = function() {
+//         console.error("Error de red al enviar la URL a Django");
+//     };
+//     var data = "urlQuirk=" + encodeURIComponent(urlQuirk);
+//     console.log("Datos enviados:", data);
+//     xhr.send(data);
+// }
 
 function enviarIDAReact(cadena) {
     // Redirigir a la aplicación de React con la cadena concatenada

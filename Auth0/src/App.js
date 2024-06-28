@@ -9,7 +9,6 @@ import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 import Home from "./views/Home";
 import Profile from "./views/Profile";
-import ExternalApi from "./views/ExternalApi";
 import MisCircuitos from './views/MisCircuitos';
 import Resultados from './views/Resultados'; 
 import { useAuth0 } from "@auth0/auth0-react";
@@ -46,7 +45,6 @@ const App = () => {
               <Route path="/resultados" component={Resultados} /> {/* Esta es la ruta para Resultados */}
               <Route path="/profile" component={Profile} />
               <Route path="/receptor-datos" component={ReceptorDatos} />
-              <Route path="/external-api" component={ExternalApi} />
             </Switch>
           </Container>
           <Footer />

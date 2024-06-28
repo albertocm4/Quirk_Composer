@@ -3,6 +3,8 @@ import axios from "axios";
 import { Container, Row, Col, Button, Form, FormGroup, Label, Input } from "reactstrap";
 import Loading from "../components/Loading";
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
+import "../ProfileComponent.css";
+
 
 export const ProfileComponent = () => {
   const { user } = useAuth0();
@@ -34,7 +36,6 @@ export const ProfileComponent = () => {
     
     fetchDeploymentInfo();
   }, [user]);
-  
 
   const handleEdit = () => {
     setEditMode(true);
@@ -62,7 +63,7 @@ export const ProfileComponent = () => {
   };
 
   return (
-    <Container className="mb-5">
+    <Container className="profile-component mb-5">
       <Row className="align-items-center profile-header mb-5 text-center text-md-left">
         <Col md={2}>
           <img
@@ -125,15 +126,17 @@ export const ProfileComponent = () => {
                 disabled={!editMode}
               />
             </FormGroup>
+            <div className="profile-button">
             {editMode ? (
-              <Button color="primary" onClick={handleSave}>
+              <Button  onClick={handleSave}>
                 Guardar
               </Button>
             ) : (
-              <Button color="secondary" onClick={handleEdit}>
+              <Button onClick={handleEdit}>
                 Editar
               </Button>
             )}
+            </div>
           </Form>
         </Col>
       </Row>

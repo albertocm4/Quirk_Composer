@@ -118,13 +118,26 @@ let showErrorDiv = (callout, subject, body, identifier, isKnownIssueUrl=undefine
     showErrorDiv_forced(callout, subject, body, isKnownIssueUrl);
 };
 
+
+
 let takeScreenshotOfCanvas = () => {
     let canvas = document.getElementById("drawCanvas");
     if (canvas === undefined) {
         return '#';
     }
-    return canvas.toDataURL("image/png");
+    let canvasDataURL = canvas.toDataURL("image/png");
+    return canvasDataURL;
 };
+
+
+
+// let takeScreenshotOfCanvas = () => {
+//     let canvas = document.getElementById("drawCanvas");
+//     if (canvas === undefined) {
+//         return '#';
+//     }
+//     return canvas.toDataURL("image/png");
+// };
 
 /**
  * @param {!string} recovery A short description of what happened and how it was recovered from.
