@@ -61,6 +61,12 @@
         // Obtener la URL completa
         const urlCompleta = window.location.href;
 
+        if (urlCompleta.endsWith("quirk.html") || urlCompleta.endsWith(":[]}")) {
+           alert("Please, add a circuit to translate it to QCraft.");
+           return null;
+        }
+
+
     // Establecer la URL antes de la cadena como la URL completa predeterminada
     urlAntesDeCadena = urlCompleta;
 
@@ -84,11 +90,18 @@
     // Agregar un event listener para el evento click
     enviarUrlButton.addEventListener("click", function() {
         // Verificar si el texto del botón es "Go to Quirk Advance"
-        if (enviarUrlButton.innerText === "Go to Advance Quirk") {
+        if (enviarUrlButton.innerText === "Translate circuit") {
+
             // Si lo es, enviar el mensaje postMessage
+            if (obtenerURLYCadena() === null) {
+                return;
+            }
+            else {
             obtenerURLYCadena(); // Obtener la URL antes de la cadena y la cadena del circuito
             window.parent.postMessage({ type: 'get url' }, '*');
+        }
         } else if (enviarUrlButton.innerText === "Editar Circuito") {
+
             // Si el texto del botón es "Editar Circuito", enviar otro mensaje postMessage
             cadenaCircuito = obtenerValorParametroCadena();
             console.log("Cadena del circuito:", cadenaCircuito);
@@ -111,7 +124,7 @@
         console.log("URL antes de la cadena:", urlAntesDeCadena);
         // Aquí puedes hacer lo que necesites con la cadena del circuito
     } else {
-        enviarUrlButton.textContent = "Go to Advance Quirk";
+        enviarUrlButton.textContent = "Translate circuit";
     }
 </script>
 
@@ -128,6 +141,26 @@
                 &nbsp;
                 &nbsp;
                 <button id="gate-forge-button" style="min-width: 50px; min-height: 30px;">Make Gate</button>
+                &nbsp;
+                &nbsp;
+                <button id="qcraft" style="min-width: 50px; min-height: 30px;">Go to QCraft</button>
+
+<script>
+    // Seleccionar el botón por su id
+    const qcraftButton = document.getElementById("qcraft");
+
+    // Agregar un event listener para el evento click
+    qcraftButton.addEventListener("click", function() {
+        // Verificar si el texto del botón es "Go to QCraft"
+        if (qcraftButton.innerText === "Go to QCraft") {
+            // Si lo es, redirigir a QCRAFT
+            window.location.href = "http://localhost:3000/";
+        } else {
+            // Si no, hacer otra cosa o dejar vacío
+        }
+    });
+</script>
+
                 &nbsp;
                 &nbsp;
                 &nbsp;
@@ -206,7 +239,7 @@
     // Agregar un event listener para el evento click
     enviarUrlButton.addEventListener("click", function() {
         // Verificar si el texto del botón es "Go to Quirk Advance"
-        if (enviarUrlButton.innerText === "Go to Advance Quirk") {
+        if (enviarUrlButton.innerText === "Translate circuit") {
             // Si lo es, enviar el mensaje postMessage
             window.parent.postMessage({ type: 'get url' }, '*');
         } else {

@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { withAuthenticationRequired, useAuth0 } from '@auth0/auth0-react';
 import Loading from "./components/Loading";
 import { UserEmailProvider, useUserEmail } from './components/UserEmailContext'; // Importar el proveedor y el hook del contexto
+import "./ReceptorDatos.css";
 
 const ReceptorDatos = () => {
   const location = useLocation();
@@ -122,13 +123,13 @@ const ReceptorDatos = () => {
 
   return (
     <UserEmailProvider> {/* Envolver el componente con el proveedor de contexto */}
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <div style={{ width: '45%' }}>
+      <div className="receptor-datos-container">
+        <div className="codigo-container" style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div className="codigo-section" style={{ width: '45%' }}>
             <h2>Código AWS:</h2>
             <pre>{awsCode}</pre>
           </div>
-          <div style={{ width: '45%' }}>
+          <div className="codigo-section" style={{ width: '45%' }}>
             <h2>Código IBM:</h2>
             <pre>{ibmCode}</pre>
           </div>

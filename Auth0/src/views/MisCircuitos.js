@@ -44,6 +44,7 @@ const MisCircuitos = () => {
   const [ejecucionEnCurso, setEjecucionEnCurso] = useState(null);
   const [ejecucionCompletada, setEjecucionCompletada] = useState(null);
   const [isExecuting, setIsExecuting] = useState(false); // Estado para controlar la ejecución
+  const [noEjecucion, setNoEjecucion] = useState(null);
   const [nombreCircuito, setNombreCircuito] = useState(null);
 
   const precios = {
@@ -67,6 +68,7 @@ const MisCircuitos = () => {
     setSelectedProvider(provider);
     setEjecucionCompletada(null);
     setEjecucionEnCurso("NO NULO");
+    setNoEjecucion("NO NULO");
     setSelectedMaquinaAWS('');
     setSelectedMaquinaIBM('');
     setSelectedShotsAWS('');
@@ -142,7 +144,10 @@ const MisCircuitos = () => {
           }
         }
       );
-  
+      console.log('Respuesta de AWS:', awsResponse.data.code);
+      console.log('Respuesta de AWS:', awsResponse.data.code.join('\n'));
+      console.log('Respuesta de AWS:', awsResponse);
+      console.log('Respuesta de AWS:', awsResponse.data);
       // Procesar la respuesta del servidor intermedio
       setAwsCode(awsResponse.data.code.join('\n'));
 
@@ -156,11 +161,13 @@ const MisCircuitos = () => {
           }
         }
       );
+      console.log('Respuesta de IBM:', ibmResponse.data.code);
       setIbmCode(ibmResponse.data.code.join('\n'));
 
       setTranslatedCircuito({ url, nombre });
     } catch (error) {
       console.error('Error translating:', error);
+      alert('El servidor no permite traducir todos los componentes del circuito correctamente. \nPor favor, edite el circuito.');
     } finally {
       setIsTranslating(false);
       setEditingOrEjecting(false);
@@ -224,7 +231,13 @@ const MisCircuitos = () => {
 
       setCodigoCircuitoAWS(response.data.circuito);
       setEjecucionEnCurso(response.data.circuito);
+      if (response.data.circuito === "ERROR") {
+        setNoEjecucion(response.data.circuito);
+      }
+      else {
       setEjecucionCompletada(response.data.circuito);
+      }
+      
       const tareaId = response.data.tarea_id;
       
       // Utiliza los datos como necesites
@@ -237,10 +250,16 @@ const MisCircuitos = () => {
   };
   
   const handleEjecutarAwsClick = () => {
+    setEjecucionEnCurso("NO NULO");
+    setNoEjecucion("NO NULO");
+    setEjecucionCompletada(null);
     ejecutarTraduccion(awsCode, "AWS", selectedShotsAWS, selectedMaquinaAWS);
   };
   
   const handleEjecutarIbmClick = () => {
+    setEjecucionEnCurso("NO NULO");
+    setNoEjecucion("NO NULO");
+    setEjecucionCompletada(null);
     ejecutarTraduccion(ibmCode, "IBM", selectedShotsIBM, selectedMaquinaIBM);
   };
 
@@ -248,6 +267,7 @@ const MisCircuitos = () => {
     setTranslatedCircuito(null);
     setReceivedUrl(''); // Limpiar la URL del circuito seleccionado
     setEjecucionEnCurso("NO NULO");
+    setNoEjecucion("NO NULO");
     setSelectedProvider(null);
     setSelectedMaquinaAWS('');
     setSelectedMaquinaIBM('');
@@ -397,7 +417,12 @@ const MisCircuitos = () => {
                     Su ejecución ha sido completada. Puede ver los resultados en la pestaña <a href="http://localhost:3000/resultados">Resultados</a>.
                   </p>
                 )}
-                {isExecuting && <LoadingOverlay />}
+                {noEjecucion === "ERROR" && (
+                  <p>
+                    La máquina seleccionada no está disponible. Por favor, inténtelo de nuevo más tarde.
+                  </p>
+                )}
+                {isExecuting && <LoadingOverlayS />}
               </div>
             )}
             {selectedProvider === 'IBM' && (
@@ -437,6 +462,11 @@ const MisCircuitos = () => {
                 {ejecucionCompletada && (
                   <p>
                     Su ejecución ha sido completada. Puede ver los resultados en la pestaña <a href="http://localhost:3000/resultados">Resultados</a>.
+                  </p>
+                )}
+                {noEjecucion === "ERROR" && (
+                  <p>
+                    La máquina seleccionada no está disponible. Por favor, inténtelo de nuevo más tarde.
                   </p>
                 )}
                 {isExecuting && <LoadingOverlayS />}
