@@ -43,7 +43,8 @@ const MisCircuitos = () => {
   const [mensaje, setMensaje] = useState("");
   const [ejecucionEnCurso, setEjecucionEnCurso] = useState(null);
   const [ejecucionCompletada, setEjecucionCompletada] = useState(null);
-  const [isExecuting, setIsExecuting] = useState(false); // Estado para controlar la ejecución
+  const [isExecutingS, setIsExecutingS] = useState(false); // Estado para controlar la ejecución
+  const [isExecutingE, setIsExecutingE] = useState(false); // Estado para controlar la ejecución
   const [noEjecucion, setNoEjecucion] = useState(null);
   const [nombreCircuito, setNombreCircuito] = useState(null);
 
@@ -137,10 +138,10 @@ const MisCircuitos = () => {
       const awsResponse = await axios.post('http://localhost:4246/code/aws', 
         { 
           url: url 
-        }, // La URL como un objeto JSON
+        },
         {
           headers: {
-            'Content-Type': 'application/json' // Especificar que el contenido es JSON
+            'Content-Type': 'application/json'
           }
         }
       );
@@ -154,10 +155,10 @@ const MisCircuitos = () => {
       const ibmResponse = await axios.post('http://localhost:4246/code/ibm', 
         { 
           url: url 
-        }, // La URL como un objeto JSON
+        },
         {
           headers: {
-            'Content-Type': 'application/json' // Especificar que el contenido es JSON
+            'Content-Type': 'application/json'
           }
         }
       );
@@ -176,40 +177,40 @@ const MisCircuitos = () => {
 
 
   const handleSendUrl = async (url) => {
-    setIsExecuting(true);
+    setIsExecutingS(true);
     console.log('el id del circuito seleccionado es:', selectedCircuitoId);
     try {
       const response = await axios.post('http://localhost:8000/lanzar_servicio/', {
         url: url,
         id: selectedCircuitoId
       });
-      setReceivedUrl(response.data.service_url);  // Asegúrate de que el backend devuelve `received_url`
+      setReceivedUrl(response.data.service_url);
     } catch (error) {
       console.error('Error al enviar la URL:', error);
     } finally {
-      setIsExecuting(false);
+      setIsExecutingS(false);
     }
   };
   
 
   const ejecutarTraduccion = async (codigoTraducido, plataforma, shots, maquina) => {
-    setIsExecuting(true); // Indicar que se está ejecutando el circuito
+    setIsExecutingE(true); // Indicar que se está ejecutando el circuito
     try {
           // Verificar si se ha seleccionado una máquina válida
     if (maquina === '') {
       alert('Por favor, selecciona una máquina válida.');
-      setIsExecuting(false); 
+      setIsExecutingE(false); 
       return;
     }
     
     // Verificar si se ha ingresado un número de shots válido
     if (shots === '') {
       alert('Por favor, ingresa un número de shots.');
-      setIsExecuting(false);
+      setIsExecutingE(false);
       return;
-    } else if (parseInt(shots) < 10 || parseInt(shots) > 10000) {
+    } else if (parseInt(shots) < 100 || parseInt(shots) > 10000) {
       alert('El número de shots debe estar entre 100 y 10000.');
-      setIsExecuting(false);
+      setIsExecutingE(false);
       return;
     }
       console.log("Código traducido a enviar:", codigoTraducido);
@@ -220,7 +221,7 @@ const MisCircuitos = () => {
       const response = await axios.post('http://localhost:8000/ejecutar_circuito/', {
         email: userEmail,
         codigo_traducido: codigoTraducido,
-        circuito_id: selectedCircuitoId, // Utilizamos el ID almacenado en el estado
+        circuito_id: selectedCircuitoId,
         plataforma: plataforma,
         shots: shots,
         maquina: maquina
@@ -231,7 +232,7 @@ const MisCircuitos = () => {
 
       setCodigoCircuitoAWS(response.data.circuito);
       setEjecucionEnCurso(response.data.circuito);
-      if (response.data.circuito === "ERROR") {
+      if (response.data.circuito === "ERROR" || response.data.circuito === "CREDENCIALES") {
         setNoEjecucion(response.data.circuito);
       }
       else {
@@ -245,7 +246,7 @@ const MisCircuitos = () => {
     } catch (error) {
       console.error('Error al ejecutar traducción:', error);
     } finally {
-      setIsExecuting(false); // Indicar que se ha completado la ejecución
+      setIsExecutingE(false);
     }
   };
   
@@ -265,7 +266,7 @@ const MisCircuitos = () => {
 
   const handleBack = () => {
     setTranslatedCircuito(null);
-    setReceivedUrl(''); // Limpiar la URL del circuito seleccionado
+    // setReceivedUrl(''); // Limpiar la URL del circuito seleccionado
     setEjecucionEnCurso("NO NULO");
     setNoEjecucion("NO NULO");
     setSelectedProvider(null);
@@ -422,7 +423,12 @@ const MisCircuitos = () => {
                     La máquina seleccionada no está disponible. Por favor, inténtelo de nuevo más tarde.
                   </p>
                 )}
-                {isExecuting && <LoadingOverlayS />}
+                {noEjecucion === "CREDENCIALES" && (
+                  <p>
+                    Las credenciales de AWS no están configuradas. Por favor, configure las credenciales de AWS en su perfil.
+                  </p>
+                )}
+                {isExecutingE && <LoadingOverlay />}
               </div>
             )}
             {selectedProvider === 'IBM' && (
@@ -469,7 +475,12 @@ const MisCircuitos = () => {
                     La máquina seleccionada no está disponible. Por favor, inténtelo de nuevo más tarde.
                   </p>
                 )}
-                {isExecuting && <LoadingOverlayS />}
+                {noEjecucion === "CREDENCIALES" && (
+                  <p>
+                    Las credenciales de IBM no están configuradas. Por favor, configure las credenciales de IBM en su perfil.
+                  </p>
+                )}
+                {isExecutingE && <LoadingOverlay />}
               </div>
             )}
           </div>
@@ -484,7 +495,7 @@ const MisCircuitos = () => {
               <a href={receivedUrl}>{receivedUrl}</a>
             </p>
           )}
-          {isExecuting && <LoadingOverlayS />}
+          {isExecutingS && <LoadingOverlayS />}
           <p>
             <button onClick={handleBack}>Volver</button>
           </p>
